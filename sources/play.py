@@ -2,7 +2,6 @@
 © 2022-2025 Wei-Ting Yang. All rights reserved.
 """
 
-
 import sys
 import tkinter as tk
 from random import choices
@@ -57,11 +56,13 @@ class Program:
             sys.exit("Aqua windowing system is currently not supported.")
 
     def _create_landscape(self) -> None:
-        LANDS = tuple([
-            *(getattr(Image, f"grass_{i}") for i in range(1, 16)),
-            Image.rock,
-            Image.tree,
-        ])
+        LANDS = tuple(
+            [
+                *(getattr(Image, f"grass_{i}") for i in range(1, 16)),
+                Image.rock,
+                Image.tree,
+            ]
+        )
         WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
 
         # TODO: Track canvas image object ID.
@@ -81,42 +82,66 @@ class Program:
                 self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
 
     def _create_displays(self) -> None:
-        DayDisplay(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-            0,
+        DayDisplay.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
+                "y": 0,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
-        CoinDisplay(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-            1,
+        CoinDisplay.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
+                "y": 1,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
-        StatDisplay(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-            5,
+        StatDisplay.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
+                "y": 5,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
 
     def _create_controls(self) -> None:
-        EndTurnControl(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-            C.VERTICAL_TILE_COUNT - 1,
+        EndTurnControl.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
+                "y": C.VERTICAL_TILE_COUNT - 1,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
 
     def _create_initial_buildings(self) -> None:
-        Barrack(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT // 2,
-            C.VERTICAL_TILE_COUNT // 2,
+        Barrack.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT // 2,
+                "y": C.VERTICAL_TILE_COUNT // 2,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
 
     def _create_initial_allied_soldiers(self) -> None:
-        Hero(
-            self._canvas,
-            C.HORIZONTAL_LAND_TILE_COUNT // 2,
-            C.VERTICAL_TILE_COUNT // 2 + 1,
-            color=C.BLUE,
+        Hero.create(
+            {
+                "x": C.HORIZONTAL_LAND_TILE_COUNT // 2,
+                "y": C.VERTICAL_TILE_COUNT // 2 + 1,
+                "color": C.BLUE,
+            },
+            {
+                "canvas": self._canvas,
+            },
         )
 
 
