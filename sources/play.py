@@ -6,6 +6,7 @@ import sys
 import tkinter as tk
 from random import choices
 
+from game.base import GameObjectModel
 from game.buildings import Barrack
 from game.controls import EndTurnControl
 from game.displays import CoinDisplay, DayDisplay, StatDisplay
@@ -65,13 +66,15 @@ class Program:
         )
         WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
 
-        # TODO: Track canvas image object ID.
         for y in range(C.VERTICAL_TILE_COUNT):
             for x in range(C.HORIZONTAL_LAND_TILE_COUNT):
-                self._canvas.create_image(
-                    *get_pixels(x, y),
-                    image=choices(LANDS, weights=WEIGHTS)[0],
-                )
+                [image] = choices(LANDS, weights=WEIGHTS)
+                self._canvas.create_image(*get_pixels(x, y), image=image)
+
+                if image in {Image.rock, Image.tree}:
+                    GameObjectModel.cost_by_coordinate[(x, y)] = -1
+                else:
+                    GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
             for _ in range(C.HORIZONTAL_SHORE_TILE_COUNT):
                 x += 1

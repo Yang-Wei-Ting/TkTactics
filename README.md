@@ -70,6 +70,8 @@ Red diamond-shaped marker: Attack range
 ##### Moving and Attacking
 
 Move: Drag the unit onto a light blue square and release.  
+Rock and tree tiles require a unit's full mobility for the turn.  
+All other tile types cost one mobility point.  
 Attack: Drag the unit onto an enemy within attack range and release.
 
 After moving and attacking, a unit turns gray - indicating it can no longer perform any actions until the next turn.
