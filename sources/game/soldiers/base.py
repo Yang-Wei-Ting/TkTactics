@@ -158,7 +158,7 @@ class SoldierModel(GameObjectModel):
     def _learn(self, experience: int = 1) -> None:
         self.experience += experience
 
-        LEVEL_UP_EXPERIENCE_BY_LEVEL = {1: 4, 2: 8, 3: 16, 4: 32, 5: 65535}
+        LEVEL_UP_EXPERIENCE_BY_LEVEL = {1: 5, 2: 7, 3: 9, 4: 11, 5: 65535}
         while self.experience >= LEVEL_UP_EXPERIENCE_BY_LEVEL[self.level]:
             self.experience -= LEVEL_UP_EXPERIENCE_BY_LEVEL[self.level]
             self.level += 1
