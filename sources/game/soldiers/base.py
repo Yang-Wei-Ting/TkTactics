@@ -72,34 +72,55 @@ class SoldierModel(GameObjectModel):
         this turn and return it.
         """
         start = (self.x, self.y)
-        frontier = []
-        heapq.heappush(frontier, (0, start))
+        frontier = [(0, start)]
         cost_table = {start: 0}
         parent_table = {start: None}
 
         while frontier:
-            current = heapq.heappop(frontier)[1]
+            _, current = heapq.heappop(frontier)
 
             if other.get_distance_to(current) <= self.attack_range:
+                # Reconstruct path
                 path = []
                 while current:
                     path.append(current)
                     current = parent_table[current]
                 path.reverse()
-                return tuple(path[: self.mobility + 1])
 
-            new_cost = cost_table[current] + 1
+                # Trim path to mobility range
+                path_this_turn = [path[0]]
+                total_cost = 0
+                for step in path[1:]:
+                    step_cost = GameObjectModel.cost_by_coordinate[step]
+                    if step_cost == -1:
+                        step_cost = self.mobility
+
+                    if total_cost + step_cost > self.mobility:
+                        break
+
+                    path_this_turn.append(step)
+                    total_cost += step_cost
+
+                return tuple(path_this_turn)
+
             for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
-                x, y = current[0] + dx, current[1] + dy
+                neighbor = x, y = current[0] + dx, current[1] + dy
+
                 if (
                     0 <= x < C.HORIZONTAL_LAND_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and (x, y) not in GameObjectModel.occupied_coordinates
-                    and ((x, y) not in cost_table or new_cost < cost_table[(x, y)])
+                    and neighbor not in GameObjectModel.occupied_coordinates
                 ):
-                    heapq.heappush(frontier, (new_cost + other.get_distance_to((x, y)), (x, y)))
-                    cost_table[(x, y)] = new_cost
-                    parent_table[(x, y)] = current
+                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
+                    if step_cost == -1:
+                        step_cost = self.mobility
+
+                    new_cost = cost_table[current] + step_cost
+
+                    if neighbor not in cost_table or new_cost < cost_table[neighbor]:
+                        heapq.heappush(frontier, (new_cost + other.get_distance_to(neighbor), neighbor))
+                        cost_table[neighbor] = new_cost
+                        parent_table[neighbor] = current
 
         # TODO: When other is surrounded by obstacles, self should try to approach it.
         return (start,)
@@ -414,29 +435,39 @@ class Soldier(GameObject):
     def _get_reachable_coordinates(self, boundaries: tuple[int, int, int, int]) -> set[tuple[int, int]]:
         x_min, x_max, y_min, y_max = boundaries
 
+        # Dijkstra
         start = (self.model.x, self.model.y)
-        frontier = {start}
+        frontier = [(0, start)]
         cost_table = {start: 0}
         reachables = set()
 
         while frontier:
-            current = frontier.pop()
+            cost_so_far, current = heapq.heappop(frontier)
 
-            if cost_table[current] == self.model.mobility:
+            if cost_so_far >= self.model.mobility:
                 continue
 
             for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
-                x, y = current[0] + dx, current[1] + dy
+                neighbor = x, y = current[0] + dx, current[1] + dy
 
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and (x, y) not in GameObjectModel.occupied_coordinates
-                    and (x, y) not in cost_table
+                    and neighbor not in GameObjectModel.occupied_coordinates
                 ):
-                    frontier.add((x, y))
-                    cost_table[(x, y)] = cost_table[current] + 1
-                    reachables.add((x, y))
+                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
+                    if step_cost == -1:
+                        step_cost = self.model.mobility
+
+                    new_cost = cost_so_far + step_cost
+
+                    if (
+                        new_cost <= self.model.mobility
+                        and (neighbor not in cost_table or new_cost < cost_table[neighbor])
+                    ):
+                        heapq.heappush(frontier, (new_cost, neighbor))
+                        cost_table[neighbor] = new_cost
+                        reachables.add(neighbor)
 
         return reachables
 
