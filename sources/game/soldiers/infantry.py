@@ -10,7 +10,7 @@ class InfantryModel(SoldierModel):
     }
     attack_range = 2
 
-    defense = 0.25
+    defense = 0.2
 
 
 class InfantryView(SoldierView):
