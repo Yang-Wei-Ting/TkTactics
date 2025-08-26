@@ -25,8 +25,8 @@ There are four types of soldier units, each with its own strengths and weaknesse
 
 ##### Infantries
 
-![](images/blue_infantry_1.gif)
-![](images/red_infantry_1.gif)
+![](images/soldiers/blue_infantry_1.gif)
+![](images/soldiers/red_infantry_1.gif)
 
 High defense  
 Moderate attack range  
@@ -35,8 +35,8 @@ Weak against: Archers, Heroes
 
 ##### Archers
 
-![](images/blue_archer_1.gif)
-![](images/red_archer_1.gif)
+![](images/soldiers/blue_archer_1.gif)
+![](images/soldiers/red_archer_1.gif)
 
 High attack range  
 Strong against: Infantries  
@@ -44,8 +44,8 @@ Weak against: Cavalries, Heroes
 
 ##### Cavalries
 
-![](images/blue_cavalry_1.gif)
-![](images/red_cavalry_1.gif)
+![](images/soldiers/blue_cavalry_1.gif)
+![](images/soldiers/red_cavalry_1.gif)
 
 High mobility  
 Strong against: Archers  
@@ -53,8 +53,8 @@ Weak against: Infantries, Heroes
 
 ##### Heroes
 
-![](images/blue_hero_1.gif)
-![](images/red_hero_1.gif)
+![](images/soldiers/blue_hero_1.gif)
+![](images/soldiers/red_hero_1.gif)
 
 High attack, health, and mobility  
 Strong against: All other soldier unit types
@@ -92,11 +92,11 @@ When enough experience is earned, a unit automatically levels up and becomes str
 The unit’s level is shown in the upper-left corner of its icon.  
 For example: cavalries from level 1 to 5:
 
-![](images/blue_cavalry_1.gif)
-![](images/blue_cavalry_2.gif)
-![](images/blue_cavalry_3.gif)
-![](images/blue_cavalry_4.gif)
-![](images/blue_cavalry_5.gif)
+![](images/soldiers/blue_cavalry_1.gif)
+![](images/soldiers/blue_cavalry_2.gif)
+![](images/soldiers/blue_cavalry_3.gif)
+![](images/soldiers/blue_cavalry_4.gif)
+![](images/soldiers/blue_cavalry_5.gif)
 
 #### Building Units
 
@@ -104,7 +104,7 @@ Currently, there is one type of building units:
 
 ##### Barracks
 
-![](images/barrack.gif)
+![](images/buildings/barrack.gif)
 
 Used to recruit new soldier units.
 
