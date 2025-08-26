@@ -85,67 +85,25 @@ class Program:
                 self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
 
     def _create_displays(self) -> None:
-        DayDisplay.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 0,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
-        CoinDisplay.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 1,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
-        StatDisplay.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 5,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
+        x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
+        DayDisplay.create({"x": x, "y": 0}, {"canvas": self._canvas})
+        CoinDisplay.create({"x": x, "y": 1}, {"canvas": self._canvas})
+        StatDisplay.create({"x": x, "y": 5}, {"canvas": self._canvas})
 
     def _create_controls(self) -> None:
-        EndTurnControl.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": C.VERTICAL_TILE_COUNT - 1,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
+        x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
+        y = C.VERTICAL_TILE_COUNT - 1
+        EndTurnControl.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_initial_buildings(self) -> None:
-        Barrack.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT // 2,
-                "y": C.VERTICAL_TILE_COUNT // 2,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
+        x = C.HORIZONTAL_LAND_TILE_COUNT // 2
+        y = C.VERTICAL_TILE_COUNT // 2
+        Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_initial_allied_soldiers(self) -> None:
-        Hero.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT // 2,
-                "y": C.VERTICAL_TILE_COUNT // 2 + 1,
-                "color": C.BLUE,
-            },
-            {
-                "canvas": self._canvas,
-            },
-        )
+        x = C.HORIZONTAL_LAND_TILE_COUNT // 2
+        y = C.VERTICAL_TILE_COUNT // 2 + 1
+        Hero.create({"x": x, "y": y, "color": C.BLUE}, {"canvas": self._canvas})
 
 
 if __name__ == "__main__":
