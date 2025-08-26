@@ -1,6 +1,5 @@
 import tkinter as tk
-from glob import glob
-from pathlib import PurePath
+from pathlib import Path
 from tkinter import ttk
 from typing import Optional
 
@@ -47,8 +46,8 @@ class Image:
         """
         Hook all images onto cls.
         """
-        for path in glob("images/*"):
-            setattr(cls, PurePath(path).stem, tk.PhotoImage(file=path))
+        for path in Path("images").rglob("*.gif"):
+            setattr(cls, path.stem, tk.PhotoImage(file=str(path)))
 
 
 class ImproperlyConfigured(Exception):
