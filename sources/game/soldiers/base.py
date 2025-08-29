@@ -385,11 +385,6 @@ class Soldier(GameObject):
             self.view.move_by(event.x - self._pressed_x, event.y - self._pressed_y)
 
     def _handle_release_event(self, event: tk.Event) -> None:
-        self.view.unbind_and_release(("<ButtonRelease-1>", "<Motion>"))
-
-        del GameObject.singletons["pressed_game_object"]
-        self._refresh_stat_display()
-
         if self.model.color == C.BLUE:
             widget = self.view._widgets["main"]
             x = widget.winfo_x()
@@ -410,6 +405,12 @@ class Soldier(GameObject):
             self.view.attach_widgets(self.model.get_data())
 
         self._destroy_highlights()
+
+        self._refresh_stat_display()
+
+        del GameObject.singletons["pressed_game_object"]
+
+        self.view.unbind_and_release(("<ButtonRelease-1>", "<Motion>"))
 
     def _refresh_stat_display(self) -> None:
         if display := GameObject.singletons.get("stat_display"):
