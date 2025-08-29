@@ -21,6 +21,9 @@ class Barrack(Building):
         GameObject.unordered_collections["critical_building"].remove(self)
 
     def _handle_selection(self) -> None:
+        if display := GameObject.singletons.get("stat_display"):
+            display.refresh()
+
         x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
         InfantryRecruitment.create({"x": x, "y": 4}, {"canvas": self.view.canvas})
         ArcherRecruitment.create({"x": x, "y": 5}, {"canvas": self.view.canvas})

@@ -83,6 +83,9 @@ class EndTurnControl(GameObject):
         for obj in GameObject.ordered_collections["selected_game_object"][::-1]:
             obj.handle_click_event()
 
+        if display := GameObject.singletons.get("stat_display"):
+            display.refresh()
+
         if GameObject.unordered_collections["enemy_soldier"]:
             for enemy in GameObject.unordered_collections["enemy_soldier"]:
                 enemy.model.moved_this_turn = False
