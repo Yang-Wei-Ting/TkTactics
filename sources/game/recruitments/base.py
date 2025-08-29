@@ -91,7 +91,7 @@ class SoldierRecruitment(GameObject):
         }:
             x, y = building.model.x + dx, building.model.y + dy
             if (
-                0 < x < C.HORIZONTAL_LAND_TILE_COUNT - 1
+                0 < x < C.HORIZONTAL_FIELD_TILE_COUNT - 1
                 and 0 < y < C.VERTICAL_TILE_COUNT - 1
                 and (x, y) not in GameObjectModel.occupied_coordinates
             ):

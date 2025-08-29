@@ -22,12 +22,9 @@ class Configuration:
     TILE_DIMENSION = 60
     HEALTH_BAR_LENGTH = 45
 
-    HORIZONTAL_LAND_TILE_COUNT = 21
-    HORIZONTAL_SHORE_TILE_COUNT = 1
-    HORIZONTAL_OCEAN_TILE_COUNT = 2
-    HORIZONTAL_TILE_COUNT = (
-        HORIZONTAL_LAND_TILE_COUNT + HORIZONTAL_SHORE_TILE_COUNT + HORIZONTAL_OCEAN_TILE_COUNT
-    )
+    HORIZONTAL_FIELD_TILE_COUNT = 21
+    HORIZONTAL_PANEL_TILE_COUNT = 3
+    HORIZONTAL_TILE_COUNT = HORIZONTAL_FIELD_TILE_COUNT + HORIZONTAL_PANEL_TILE_COUNT
     VERTICAL_TILE_COUNT = 13
 
 
@@ -118,7 +115,7 @@ class Style:
         )
 
 
-def get_pixels(x: int, y: int, *, x_pixel_shift: float = 0.0, y_pixel_shift: float = 0.0) -> tuple[float, float]:
+def get_pixels(x: int, y: int, x_pixel_shift: float = 0.0, y_pixel_shift: float = 0.0) -> tuple[float, float]:
     """
     Compute pixels from coordinates and custom pixel shifts.
     """

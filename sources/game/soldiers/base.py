@@ -107,7 +107,7 @@ class SoldierModel(GameObjectModel):
                 neighbor = x, y = current[0] + dx, current[1] + dy
 
                 if (
-                    0 <= x < C.HORIZONTAL_LAND_TILE_COUNT
+                    0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
                     and neighbor not in GameObjectModel.occupied_coordinates
                 ):
@@ -346,7 +346,7 @@ class Soldier(GameObject):
             if E.WINDOWING_SYSTEM == "x11":
                 self._destroy_highlights()
 
-            boundaries = (1, C.HORIZONTAL_LAND_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
+            boundaries = (1, C.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
             prepare_drop = True
 
             if not self.model.moved_this_turn:
@@ -355,7 +355,7 @@ class Soldier(GameObject):
             if not self.model.attacked_this_turn:
                 self._create_attack_range_highlight(prepare_drop)
         else:
-            boundaries = (0, C.HORIZONTAL_LAND_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
+            boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
             prepare_drop = False
 
             self._create_movement_highlights(boundaries, prepare_drop)

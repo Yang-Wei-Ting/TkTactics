@@ -67,7 +67,7 @@ class Program:
         WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
 
         for y in range(C.VERTICAL_TILE_COUNT):
-            for x in range(C.HORIZONTAL_LAND_TILE_COUNT):
+            for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
                 [image] = choices(LANDS, weights=WEIGHTS)
                 self._canvas.create_image(*get_pixels(x, y), image=image)
 
@@ -76,32 +76,28 @@ class Program:
                 else:
                     GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
-            for _ in range(C.HORIZONTAL_SHORE_TILE_COUNT):
-                x += 1
-                self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
-
-            for _ in range(C.HORIZONTAL_OCEAN_TILE_COUNT):
+            for _ in range(C.HORIZONTAL_PANEL_TILE_COUNT):
                 x += 1
                 self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
 
     def _create_displays(self) -> None:
-        x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
+        x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
         DayDisplay.create({"x": x, "y": 0}, {"canvas": self._canvas})
         CoinDisplay.create({"x": x, "y": 1}, {"canvas": self._canvas})
         StatDisplay.create({"x": x, "y": 5}, {"canvas": self._canvas})
 
     def _create_controls(self) -> None:
-        x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
+        x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
         y = C.VERTICAL_TILE_COUNT - 1
         EndTurnControl.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_initial_buildings(self) -> None:
-        x = C.HORIZONTAL_LAND_TILE_COUNT // 2
+        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2
         Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_initial_allied_soldiers(self) -> None:
-        x = C.HORIZONTAL_LAND_TILE_COUNT // 2
+        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2 + 1
         Hero.create({"x": x, "y": y, "color": C.BLUE}, {"canvas": self._canvas})
 
