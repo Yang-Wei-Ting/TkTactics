@@ -374,7 +374,6 @@ class Soldier(GameObject):
         self.view.unbind_and_release(("<ButtonRelease-1>", "<Motion>"))
 
         del GameObject.singletons["pressed_game_object"]
-        self._refresh_stat_display()
 
         if self.model.color == C.BLUE:
             widget = self.view._widgets["main"]
