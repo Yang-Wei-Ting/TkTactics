@@ -21,33 +21,10 @@ class Barrack(Building):
         GameObject.unordered_collections["critical_building"].remove(self)
 
     def _handle_selection(self) -> None:
-        InfantryRecruitment.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 4,
-            },
-            {
-                "canvas": self.view.canvas,
-            },
-        )
-        ArcherRecruitment.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 5,
-            },
-            {
-                "canvas": self.view.canvas,
-            },
-        )
-        CavalryRecruitment.create(
-            {
-                "x": C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT,
-                "y": 6,
-            },
-            {
-                "canvas": self.view.canvas,
-            },
-        )
+        x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
+        InfantryRecruitment.create({"x": x, "y": 4}, {"canvas": self.view.canvas})
+        ArcherRecruitment.create({"x": x, "y": 5}, {"canvas": self.view.canvas})
+        CavalryRecruitment.create({"x": x, "y": 6}, {"canvas": self.view.canvas})
 
     def _handle_deselection(self) -> None:
         for recruitment in set(GameObject.unordered_collections["barrack_recruitment"]):
