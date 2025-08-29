@@ -25,14 +25,22 @@ class Program:
         self._window.title("TkTactics")
         self._window.resizable(width=False, height=False)
 
-        self._canvas = tk.Canvas(
+        self._left_canvas = tk.Canvas(
             self._window,
-            width=C.TILE_DIMENSION * C.HORIZONTAL_TILE_COUNT,
+            width=C.TILE_DIMENSION * C.HORIZONTAL_LAND_TILE_COUNT,
             height=C.TILE_DIMENSION * C.VERTICAL_TILE_COUNT,
             background="Black",
             highlightthickness=0,
         )
-        self._canvas.pack()
+        self._right_canvas = tk.Canvas(
+            self._window,
+            width=C.TILE_DIMENSION * (C.HORIZONTAL_SHORE_TILE_COUNT + C.HORIZONTAL_OCEAN_TILE_COUNT),
+            height=C.TILE_DIMENSION * C.VERTICAL_TILE_COUNT,
+            background="Black",
+            highlightthickness=0,
+        )
+        self._left_canvas.pack(side="left", fill="y")
+        self._right_canvas.pack(side="right", fill="y")
 
         Image.initialize()
         Style.initialize()
@@ -69,41 +77,33 @@ class Program:
         for y in range(C.VERTICAL_TILE_COUNT):
             for x in range(C.HORIZONTAL_LAND_TILE_COUNT):
                 [image] = choices(LANDS, weights=WEIGHTS)
-                self._canvas.create_image(*get_pixels(x, y), image=image)
+                self._left_canvas.create_image(*get_pixels(x, y), image=image)
 
                 if image in {Image.rock, Image.tree}:
                     GameObjectModel.cost_by_coordinate[(x, y)] = -1
                 else:
                     GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
-            for _ in range(C.HORIZONTAL_SHORE_TILE_COUNT):
-                x += 1
-                self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
-
-            for _ in range(C.HORIZONTAL_OCEAN_TILE_COUNT):
-                x += 1
-                self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
-
     def _create_displays(self) -> None:
         x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
-        DayDisplay.create({"x": x, "y": 0}, {"canvas": self._canvas})
-        CoinDisplay.create({"x": x, "y": 1}, {"canvas": self._canvas})
-        StatDisplay.create({"x": x, "y": 5}, {"canvas": self._canvas})
+        DayDisplay.create({"x": x, "y": 0}, {"canvas": self._right_canvas})
+        CoinDisplay.create({"x": x, "y": 1}, {"canvas": self._right_canvas})
+        StatDisplay.create({"x": x, "y": 5}, {"canvas": self._right_canvas})
 
     def _create_controls(self) -> None:
         x = C.HORIZONTAL_LAND_TILE_COUNT + C.HORIZONTAL_SHORE_TILE_COUNT
         y = C.VERTICAL_TILE_COUNT - 1
-        EndTurnControl.create({"x": x, "y": y}, {"canvas": self._canvas})
+        EndTurnControl.create({"x": x, "y": y}, {"canvas": self._right_canvas})
 
     def _create_initial_buildings(self) -> None:
         x = C.HORIZONTAL_LAND_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2
-        Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
+        Barrack.create({"x": x, "y": y}, {"canvas": self._left_canvas})
 
     def _create_initial_allied_soldiers(self) -> None:
         x = C.HORIZONTAL_LAND_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2 + 1
-        Hero.create({"x": x, "y": y, "color": C.BLUE}, {"canvas": self._canvas})
+        Hero.create({"x": x, "y": y, "color": C.BLUE}, {"canvas": self._left_canvas})
 
 
 if __name__ == "__main__":
