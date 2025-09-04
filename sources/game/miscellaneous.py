@@ -66,6 +66,7 @@ class Style:
             padding=0,
             relief=tk.RAISED,
             width=-1,
+            image=Image.wood2,
         )
         style.map(
             "Black_Burlywood4.TButton",
