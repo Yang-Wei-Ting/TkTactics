@@ -68,8 +68,8 @@ class Style:
             width=-1,
         )
         style.map(
-            "Black_Burlywood4.TButton",
-            background=[("Burlywood4",)],
+            "Black_CustomWood.TButton",
+            background=[("#C4A66E",)],
             foreground=[("Black",)],
         )
         style.map(
@@ -89,14 +89,23 @@ class Style:
             background=[("Royalblue1",)],
         )
         style.configure(
-            "BigText.Black_Burlywood4.TButton",
+            "OutcomeBanner.Black_CustomWood.TButton",
+            compound="center",
             font=("Courier", 36, "bold italic"),
-            padding=9,
+            image=Image.outcome_banner,
         )
         style.configure(
-            "SmallText.Black_Burlywood4.TButton",
+            "LargePanelBox.Black_CustomWood.TButton",
+            compound="center",
             font=("Courier", 18, "bold"),
-            padding=3,
+            image=Image.large_panel_box,
+            width=9,
+        )
+        style.configure(
+            "SmallPanelBox.Black_CustomWood.TButton",
+            compound="center",
+            font=("Courier", 18, "bold"),
+            image=Image.small_panel_box,
             width=9,
         )
         style.configure(

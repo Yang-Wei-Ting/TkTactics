@@ -27,7 +27,7 @@ class DisplayOutcomeControlView(GameObjectView):
         self._widgets["main"] = ttk.Button(
             self.canvas,
             cursor="hand2",
-            style="BigText.Black_Burlywood4.TButton",
+            style="OutcomeBanner.Black_CustomWood.TButton",
             takefocus=False,
         )
 

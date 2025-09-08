@@ -52,7 +52,7 @@ class EndTurnControlView(GameObjectView):
         self._widgets["main"] = ttk.Button(
             self.canvas,
             cursor="hand2",
-            style="SmallText.Black_Burlywood4.TButton",
+            style="SmallPanelBox.Black_CustomWood.TButton",
             takefocus=False,
             text="End turn ",
         )

@@ -13,7 +13,7 @@ class DisplayView(GameObjectView):
         self._widgets["main"] = ttk.Label(
             self.canvas,
             cursor="arrow",
-            style="SmallText.Black_Burlywood4.TButton",
+            style="SmallPanelBox.Black_CustomWood.TButton",
         )
 
 
