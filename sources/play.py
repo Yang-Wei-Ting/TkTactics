@@ -38,8 +38,7 @@ class Program:
         Style.initialize()
 
         self._create_landscape()
-        self._create_displays()
-        self._create_controls()
+        self._create_side_panel()
 
         self._create_initial_buildings()
         self._create_initial_allied_soldiers()
@@ -76,9 +75,13 @@ class Program:
                 else:
                     GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
-            for _ in range(C.HORIZONTAL_PANEL_TILE_COUNT):
-                x += 1
-                self._canvas.create_image(*get_pixels(x, y), image=Image.ocean)
+    def _create_side_panel(self) -> None:
+        self._canvas.create_image(
+            *get_pixels(C.HORIZONTAL_FIELD_TILE_COUNT + 1, C.VERTICAL_TILE_COUNT // 2),
+            image=Image.side_panel,
+        )
+        self._create_displays()
+        self._create_controls()
 
     def _create_displays(self) -> None:
         x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
