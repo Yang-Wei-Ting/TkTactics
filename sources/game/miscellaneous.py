@@ -95,7 +95,6 @@ class Style:
         )
         style.configure(
             "SmallText.Black_Burlywood4.TButton",
-            anchor=tk.W,
             font=("Courier", 18, "bold"),
             padding=3,
             width=9,

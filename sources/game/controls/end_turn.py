@@ -54,7 +54,7 @@ class EndTurnControlView(GameObjectView):
             cursor="hand2",
             style="SmallText.Black_Burlywood4.TButton",
             takefocus=False,
-            text="End turn",
+            text="End turn ",
         )
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
