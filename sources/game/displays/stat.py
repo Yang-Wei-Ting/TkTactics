@@ -30,7 +30,7 @@ class StatDisplayView(DisplayView):
                 """
             )
         else:
-            text = "\n" * 11
+            text = "         \n" * 11
 
         self._widgets["main"].configure(text=text)
 
