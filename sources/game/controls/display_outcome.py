@@ -8,7 +8,7 @@ from game.miscellaneous import Configuration as C
 class DisplayOutcomeControlModel(GameObjectModel):
 
     def __init__(self, text: str) -> None:
-        x = C.HORIZONTAL_LAND_TILE_COUNT // 2
+        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2
         super().__init__(x, y)
         self.text = text
@@ -27,7 +27,7 @@ class DisplayOutcomeControlView(GameObjectView):
         self._widgets["main"] = ttk.Button(
             self.canvas,
             cursor="hand2",
-            style="BigText.Black_Burlywood4.TButton",
+            style="OutcomeBanner.Black_CustomWood.TButton",
             takefocus=False,
         )
 

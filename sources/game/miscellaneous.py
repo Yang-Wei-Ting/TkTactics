@@ -22,12 +22,9 @@ class Configuration:
     TILE_DIMENSION = 60
     HEALTH_BAR_LENGTH = 45
 
-    HORIZONTAL_LAND_TILE_COUNT = 21
-    HORIZONTAL_SHORE_TILE_COUNT = 1
-    HORIZONTAL_OCEAN_TILE_COUNT = 2
-    HORIZONTAL_TILE_COUNT = (
-        HORIZONTAL_LAND_TILE_COUNT + HORIZONTAL_SHORE_TILE_COUNT + HORIZONTAL_OCEAN_TILE_COUNT
-    )
+    HORIZONTAL_FIELD_TILE_COUNT = 21
+    HORIZONTAL_PANEL_TILE_COUNT = 3
+    HORIZONTAL_TILE_COUNT = HORIZONTAL_FIELD_TILE_COUNT + HORIZONTAL_PANEL_TILE_COUNT
     VERTICAL_TILE_COUNT = 13
 
 
@@ -71,8 +68,8 @@ class Style:
             width=-1,
         )
         style.map(
-            "Black_Burlywood4.TButton",
-            background=[("Burlywood4",)],
+            "Black_CustomWood.TButton",
+            background=[("#C4A66E",)],
             foreground=[("Black",)],
         )
         style.map(
@@ -92,15 +89,23 @@ class Style:
             background=[("Royalblue1",)],
         )
         style.configure(
-            "BigText.Black_Burlywood4.TButton",
+            "OutcomeBanner.Black_CustomWood.TButton",
+            compound="center",
             font=("Courier", 36, "bold italic"),
-            padding=9,
+            image=Image.outcome_banner,
         )
         style.configure(
-            "SmallText.Black_Burlywood4.TButton",
-            anchor=tk.W,
+            "LargePanelBox.Black_CustomWood.TButton",
+            compound="center",
             font=("Courier", 18, "bold"),
-            padding=3,
+            image=Image.large_panel_box,
+            width=9,
+        )
+        style.configure(
+            "SmallPanelBox.Black_CustomWood.TButton",
+            compound="center",
+            font=("Courier", 18, "bold"),
+            image=Image.small_panel_box,
             width=9,
         )
         style.configure(

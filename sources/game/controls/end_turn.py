@@ -52,9 +52,9 @@ class EndTurnControlView(GameObjectView):
         self._widgets["main"] = ttk.Button(
             self.canvas,
             cursor="hand2",
-            style="SmallText.Black_Burlywood4.TButton",
+            style="SmallPanelBox.Black_CustomWood.TButton",
             takefocus=False,
-            text="End turn",
+            text="End turn ",
         )
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
@@ -157,7 +157,7 @@ class EndTurnControl(GameObject):
             yield
 
     def _wave_generator_function(self) -> Iterator[None]:
-        H = C.HORIZONTAL_LAND_TILE_COUNT
+        H = C.HORIZONTAL_FIELD_TILE_COUNT
         V = C.VERTICAL_TILE_COUNT
         area_north_east = [
             *[(x, 0) for x in range(H - 3, H - 1)],     #     2

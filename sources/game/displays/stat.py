@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from textwrap import dedent
+from tkinter import ttk
 
 from game.base import GameObject
 from game.displays.base import Display, DisplayModel, DisplayView
@@ -10,6 +11,13 @@ class StatDisplayModel(DisplayModel):
 
 
 class StatDisplayView(DisplayView):
+
+    def _create_widgets(self) -> None:
+        self._widgets["main"] = ttk.Label(
+            self.canvas,
+            cursor="arrow",
+            style="LargePanelBox.Black_CustomWood.TButton",
+        )
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
         if data:
@@ -30,7 +38,7 @@ class StatDisplayView(DisplayView):
                 """
             )
         else:
-            text = "\n" * 11
+            text = "         \n" * 11
 
         self._widgets["main"].configure(text=text)
 
