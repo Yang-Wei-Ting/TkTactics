@@ -169,6 +169,7 @@ class SoldierView(GameObjectView):
 
     def _create_widgets(self) -> None:
         self._widgets["main"] = ttk.Label(self.canvas)
+        self._widgets["level"] = ttk.Label(self.canvas)
         self._widgets["health_bar"] = ttk.Progressbar(
             self.canvas,
             length=C.HEALTH_BAR_LENGTH,
@@ -181,6 +182,10 @@ class SoldierView(GameObjectView):
         self._ids["main"] = self.canvas.create_window(
             *get_pixels(data["x"], data["y"], y_pixel_shift=5.0),
             window=self._widgets["main"],
+        )
+        self._ids["level"] = self.canvas.create_window(
+            *get_pixels(data["x"], data["y"], x_pixel_shift=-15.0, y_pixel_shift=-10.0),
+            window=self._widgets["level"],
         )
         self._ids["health_bar"] = self.canvas.create_window(
             *get_pixels(data["x"], data["y"], y_pixel_shift=-22.5),
@@ -202,8 +207,13 @@ class SoldierView(GameObjectView):
 
         self._widgets["main"].configure(
             cursor=cursor,
-            image=getattr(Image, f"{color_name}_{soldier_name}_{data["level"]}"),
+            image=getattr(Image, f"{color_name}_{soldier_name}"),
             style=f"Custom{color_name.capitalize()}.TButton",
+        )
+        self._widgets["level"].configure(
+            cursor="arrow",
+            image=getattr(Image, f"{color_name}_level_{data["level"]}"),
+            style=f"Flat.Custom{color_name.capitalize()}.TButton",
         )
         self._widgets["health_bar"].configure(maximum=data["max_health"], value=data["health"])
 
@@ -211,6 +221,10 @@ class SoldierView(GameObjectView):
             self.canvas.coords(
                 self._ids["main"],
                 *get_pixels(data["x"], data["y"], y_pixel_shift=5.0),
+            )
+            self.canvas.coords(
+                self._ids["level"],
+                *get_pixels(data["x"], data["y"], x_pixel_shift=-15.0, y_pixel_shift=-10.0),
             )
             self.canvas.coords(
                 self._ids["health_bar"],
