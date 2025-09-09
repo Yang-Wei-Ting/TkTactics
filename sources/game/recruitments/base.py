@@ -32,7 +32,7 @@ class SoldierRecruitmentView(GameObjectView):
         self._widgets["main"].configure(
             command=command,
             cursor="hand2",
-            image=getattr(Image, f"{color_name}_{soldier_name}_1"),
+            image=getattr(Image, f"{color_name}_{soldier_name}"),
             style=f"Custom{color_name.capitalize()}.TButton",
         )
 
