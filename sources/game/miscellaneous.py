@@ -109,6 +109,21 @@ class Style:
             width=9,
         )
         style.configure(
+            "Flat.CustomBlue.TButton",
+            borderwidth=0,
+            relief=tk.FLAT,
+        )
+        style.configure(
+            "Flat.CustomGray.TButton",
+            borderwidth=0,
+            relief=tk.FLAT,
+        )
+        style.configure(
+            "Flat.CustomRed.TButton",
+            borderwidth=0,
+            relief=tk.FLAT,
+        )
+        style.configure(
             "Flat.Royalblue1.TButton",
             borderwidth=0,
             relief=tk.FLAT,
