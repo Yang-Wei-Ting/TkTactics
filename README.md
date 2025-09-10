@@ -114,7 +114,8 @@ The new unit will become active on your next turn.
 
 ## Attributions
 
-| Title                   | Author     | Source                                                                    | License                                                       |
-|-------------------------|------------|---------------------------------------------------------------------------|---------------------------------------------------------------|
-| Overworld - Grass Biome | Beast      | [opengameart.org](https://opengameart.org/content/overworld-grass-biome)  | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
-| Camping Tent Icon       | Delapouite | [game-icons.net](https://game-icons.net/1x1/delapouite/camping-tent.html) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)     |
+| Title                                         | Author     | Source                                                                                          | License                                                       |
+|-----------------------------------------------|------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| Overworld - Grass Biome                       | Beast      | [opengameart.org](https://opengameart.org/content/overworld-grass-biome)                        | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| Camping Tent Icon                             | Delapouite | [game-icons.net](https://game-icons.net/1x1/delapouite/camping-tent.html)                       | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)     |
+| Horse Face Silhouette Right Side View Variant | SVG Repo   | [svgrepo.com](https://www.svgrepo.com/svg/152103/horse-face-silhouette-right-side-view-variant) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
