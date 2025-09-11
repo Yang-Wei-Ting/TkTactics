@@ -37,9 +37,8 @@ class Program:
         Image.initialize()
         Style.initialize()
 
-        self._create_landscape()
         self._create_side_panel()
-
+        self._create_landscape()
         self._create_initial_buildings()
         self._create_initial_allied_soldiers()
 
@@ -54,26 +53,6 @@ class Program:
     def _check_requirements(self) -> None:
         if E.WINDOWING_SYSTEM == "aqua":
             sys.exit("Aqua windowing system is currently not supported.")
-
-    def _create_landscape(self) -> None:
-        LANDS = tuple(
-            [
-                *(getattr(Image, f"grass_{i}") for i in range(1, 16)),
-                Image.rock,
-                Image.tree,
-            ]
-        )
-        WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
-
-        for y in range(C.VERTICAL_TILE_COUNT):
-            for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
-                [image] = choices(LANDS, weights=WEIGHTS)
-                self._canvas.create_image(*get_pixels(x, y), image=image)
-
-                if image in {Image.rock, Image.tree}:
-                    GameObjectModel.cost_by_coordinate[(x, y)] = -1
-                else:
-                    GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
     def _create_side_panel(self) -> None:
         self._canvas.create_image(
@@ -93,6 +72,26 @@ class Program:
         x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
         y = C.VERTICAL_TILE_COUNT - 1
         EndTurnControl.create({"x": x, "y": y}, {"canvas": self._canvas})
+
+    def _create_landscape(self) -> None:
+        FIELDS = tuple(
+            [
+                *(getattr(Image, f"grass_{i}") for i in range(1, 16)),
+                Image.rock,
+                Image.tree,
+            ]
+        )
+        WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
+
+        for y in range(C.VERTICAL_TILE_COUNT):
+            for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
+                [image] = choices(FIELDS, weights=WEIGHTS)
+                self._canvas.create_image(*get_pixels(x, y), image=image)
+
+                if image in {Image.rock, Image.tree}:
+                    GameObjectModel.cost_by_coordinate[(x, y)] = -1
+                else:
+                    GameObjectModel.cost_by_coordinate[(x, y)] = 1
 
     def _create_initial_buildings(self) -> None:
         x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
