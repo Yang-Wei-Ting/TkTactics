@@ -5,7 +5,7 @@
 ## Requirements
 
     OS: Linux or Windows
-    Python: Version 3.10 or higher
+    Python: Version 3.12 or higher
 
 ## How to Play
 
