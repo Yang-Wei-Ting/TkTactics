@@ -86,7 +86,7 @@ class Program:
         for y in range(C.VERTICAL_TILE_COUNT):
             for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
                 [image] = choices(FIELDS, weights=WEIGHTS)
-                self._canvas.create_image(*get_pixels(x, y), image=image)
+                GameObjectModel.image_id_by_coordinate[(x, y)] = self._canvas.create_image(*get_pixels(x, y), image=image)
 
                 if image in {Image.rock, Image.tree}:
                     GameObjectModel.cost_by_coordinate[(x, y)] = -1
@@ -96,6 +96,13 @@ class Program:
     def _create_initial_buildings(self) -> None:
         x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
         y = C.VERTICAL_TILE_COUNT // 2
+
+        for dx, dy in {(0, 0), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)}:
+            coordinate = (x + dx, y + dy)
+            self._canvas.delete(GameObjectModel.image_id_by_coordinate[coordinate])
+            GameObjectModel.image_id_by_coordinate[coordinate] = self._canvas.create_image(*get_pixels(*coordinate), image=Image.grass_1)
+            GameObjectModel.cost_by_coordinate[coordinate] = 1
+
         Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_initial_allied_soldiers(self) -> None:
