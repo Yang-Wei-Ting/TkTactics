@@ -270,6 +270,13 @@ class Soldier(GameObject):
         self.refresh()
 
         if other.model.health > 0.0:
+            # Blink a unit's image when it is being attacked
+            other.view._widgets["main"].configure(image=Image.transparent_40x40)
+            if "level" in other.view._widgets:
+                other.view._widgets["level"].configure(image=Image.transparent_10x10)
+
+            msleep(other.view.canvas.master, 100)
+
             other.refresh()
         else:
             other.destroy()

@@ -67,6 +67,7 @@ class BuildingView(GameObjectView):
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
         self._widgets["main"].configure(
             command=event_handlers["click"],
+            image=getattr(Image, type(self).__name__.removesuffix("View").lower()),
         )
         self._widgets["health_bar"].configure(
             value=data["health"],
