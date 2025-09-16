@@ -102,6 +102,10 @@ class Style:
             width=9,
         )
         style.configure(
+            "MiddlePanelBox.Black_CustomWood.TButton",
+            image=Image.middle_panel_box,
+        )
+        style.configure(
             "SmallPanelBox.Black_CustomWood.TButton",
             compound="center",
             font=("Courier", 18, "bold"),
