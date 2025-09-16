@@ -318,9 +318,6 @@ class Soldier(GameObject):
 
         self.move_to(*path[-1])
 
-        if action in {MOVE_THEN_HIT, MOVE_THEN_KILL}:
-            self.assault(other)
-
         # Display trail
         highlights = [
             MovementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
@@ -332,7 +329,8 @@ class Soldier(GameObject):
         for highlight in highlights:
             highlight.destroy()
 
-        msleep(self.view.canvas.master, 200)
+        if action in {MOVE_THEN_HIT, MOVE_THEN_KILL}:
+            self.assault(other)
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
