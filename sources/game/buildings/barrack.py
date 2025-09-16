@@ -22,9 +22,9 @@ class Barrack(Building):
 
     def _handle_selection(self) -> None:
         x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
-        InfantryRecruitment.create({"x": x, "y": 4}, {"canvas": self.view.canvas})
-        ArcherRecruitment.create({"x": x, "y": 5}, {"canvas": self.view.canvas})
-        CavalryRecruitment.create({"x": x, "y": 6}, {"canvas": self.view.canvas})
+        InfantryRecruitment.create({"x": x, "y": 8.41}, {"canvas": self.view.canvas})
+        ArcherRecruitment.create({"x": x, "y": 9.41}, {"canvas": self.view.canvas})
+        CavalryRecruitment.create({"x": x, "y": 10.41}, {"canvas": self.view.canvas})
 
     def _handle_deselection(self) -> None:
         for recruitment in set(GameObject.unordered_collections["barrack_recruitment"]):
