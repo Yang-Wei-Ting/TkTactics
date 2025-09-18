@@ -19,9 +19,3 @@ class Wall(Building):
 
     def _unregister(self) -> None:
         GameObject.unordered_collections["noncritical_building"].remove(self)
-
-    def _handle_selection(self) -> None:
-        pass
-
-    def _handle_deselection(self) -> None:
-        pass
