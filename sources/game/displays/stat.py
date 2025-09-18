@@ -34,8 +34,7 @@ class StatDisplayView(DisplayView):
                 DEF: {int(data["defense"] * 100.0):4d}
                 HP:  {int(data["health"]):4d}
 
-                MOV: {data["mobility"]:4d}\
-                """
+                MOV: {data["mobility"]:4d}"""
             )
         else:
             text = "         \n" * 11

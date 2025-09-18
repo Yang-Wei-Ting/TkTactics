@@ -99,7 +99,6 @@ class Style:
             compound="center",
             font=("Courier", 18, "bold"),
             image=Image.large_panel_box,
-            width=9,
         )
         style.configure(
             "MiddlePanelBox.Black_CustomWood.TButton",
@@ -110,7 +109,6 @@ class Style:
             compound="center",
             font=("Courier", 18, "bold"),
             image=Image.small_panel_box,
-            width=9,
         )
         style.configure(
             "Flat.CustomBlue.TButton",
