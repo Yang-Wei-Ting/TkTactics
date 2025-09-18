@@ -28,6 +28,8 @@ class BuildingModel(GameObjectModel):
 
     def get_data(self) -> dict:
         data = {
+            "class": "building",
+            "name": type(self).__name__.removesuffix("Model"),
             **super().get_data(),
             "defense": self.defense,
             "health": self.health,
@@ -101,10 +103,13 @@ class Building(GameObject):
             case [*rest]:
                 raise NotImplementedError(rest)
 
-    @abstractmethod
     def _handle_selection(self) -> None:
-        raise NotImplementedError
+        GameObject.singletons["pressed_game_object"] = self
+        if display := GameObject.singletons.get("stat_display"):
+            display.refresh()
 
-    @abstractmethod
     def _handle_deselection(self) -> None:
-        raise NotImplementedError
+        if "pressed_game_object" in GameObject.singletons:
+            del GameObject.singletons["pressed_game_object"]
+        if display := GameObject.singletons.get("stat_display"):
+            display.refresh()

@@ -21,11 +21,15 @@ class Barrack(Building):
         GameObject.unordered_collections["critical_building"].remove(self)
 
     def _handle_selection(self) -> None:
+        super()._handle_selection()
+
         x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
         InfantryRecruitment.create({"x": x, "y": 8.41}, {"canvas": self.view.canvas})
         ArcherRecruitment.create({"x": x, "y": 9.41}, {"canvas": self.view.canvas})
         CavalryRecruitment.create({"x": x, "y": 10.41}, {"canvas": self.view.canvas})
 
     def _handle_deselection(self) -> None:
+        super()._handle_deselection()
+
         for recruitment in set(GameObject.unordered_collections["barrack_recruitment"]):
             recruitment.destroy()
