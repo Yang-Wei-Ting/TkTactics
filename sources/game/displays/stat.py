@@ -28,6 +28,28 @@ class StatDisplayView(DisplayView):
 
         self._widgets["main"].configure(text=text)
 
+    def _generate_building_stat(self, data: dict) -> str:
+        data = data.copy()
+
+        data["defense"] = int(data["defense"] * 100.0)
+        data["health"] = int(data["health"])
+
+        return dedent(
+            """\
+            {name}
+
+            DEF: {defense:4d}
+            HP:  {health:4d}
+
+
+
+
+
+
+
+            """
+        ).format(**data)
+
     def _generate_soldier_stat(self, data: dict) -> str:
         data = data.copy()
 
