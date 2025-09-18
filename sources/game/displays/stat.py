@@ -20,26 +20,36 @@ class StatDisplayView(DisplayView):
         )
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
-        if data:
-            text = dedent(
-                f"""\
-                {data["name"]}
-
-                LVL: {data["level"]:4d}
-                EXP: {data["experience"]:4d}
-
-                ATK: {int(data["attack"]):4d}
-                RNG: {data["attack_range"]:4d}
-
-                DEF: {int(data["defense"] * 100.0):4d}
-                HP:  {int(data["health"]):4d}
-
-                MOV: {data["mobility"]:4d}"""
-            )
-        else:
-            text = "         \n" * 11
+        match data:
+            case {"class": cls}:
+                text = getattr(self, f"_generate_{cls}_stat")(data)
+            case _:
+                text = ""
 
         self._widgets["main"].configure(text=text)
+
+    def _generate_soldier_stat(self, data: dict) -> str:
+        data = data.copy()
+
+        data["attack"] = int(data["attack"])
+        data["defense"] = int(data["defense"] * 100.0)
+        data["health"] = int(data["health"])
+
+        return dedent(
+            """\
+            {name}
+
+            LVL: {level:4d}
+            EXP: {experience:4d}
+
+            ATK: {attack:4d}
+            RNG: {attack_range:4d}
+
+            DEF: {defense:4d}
+            HP:  {health:4d}
+
+            MOV: {mobility:4d}"""
+        ).format(**data)
 
 
 class StatDisplay(Display):
