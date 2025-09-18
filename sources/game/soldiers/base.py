@@ -46,6 +46,7 @@ class SoldierModel(GameObjectModel):
     # GET
     def get_data(self) -> dict:
         data = {
+            "class": "soldier",
             "name": type(self).__name__.removesuffix("Model"),
             **super().get_data(),
             "color": self.color,
