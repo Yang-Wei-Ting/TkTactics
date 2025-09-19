@@ -279,12 +279,25 @@ class Soldier(GameObject):
             msleep(other.view.canvas.master, 100)
 
             other.refresh()
+            other_destroyed = False
         else:
             other.destroy()
+            other_destroyed = True
+
+        if "pressed_game_object" in GameObject.singletons:
+            if GameObject.singletons["pressed_game_object"] is self:
+                self._refresh_stat_display()
+            elif GameObject.singletons["pressed_game_object"] is other:
+                if other_destroyed:
+                    del GameObject.singletons["pressed_game_object"]
+                self._refresh_stat_display()
 
     def restore_health_by(self, amount: float) -> None:
         self.model.restore_health_by(amount)
         self.refresh()
+
+        if GameObject.singletons.get("pressed_game_object") is self:
+            self._refresh_stat_display()
 
     def hunt(self) -> None:
         """
@@ -394,9 +407,6 @@ class Soldier(GameObject):
 
     def _handle_release_event(self, event: tk.Event) -> None:
         self.view.unbind_and_release(("<ButtonRelease-1>", "<Motion>"))
-
-        del GameObject.singletons["pressed_game_object"]
-        self._refresh_stat_display()
 
         if self.model.color == C.BLUE:
             widget = self.view._widgets["main"]
