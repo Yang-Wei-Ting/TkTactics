@@ -6,10 +6,12 @@ from random import choice, sample
 from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
+from game.buildings.base import Building
 from game.controls.display_outcome import DisplayOutcomeControl
 from game.miscellaneous import Configuration as C
 from game.miscellaneous import Environment as E
 from game.miscellaneous import ImproperlyConfigured, msleep
+from game.recruitments.base import SoldierRecruitment
 from game.soldiers import Archer, Cavalry, Infantry
 from game.soldiers.base import Soldier
 from game.states import GameState
@@ -80,8 +82,9 @@ class EndTurnControl(GameObject):
 
     @block_user_input_during
     def handle_click_event(self) -> None:
-        for obj in GameObject.ordered_collections["selected_game_object"][::-1]:
-            obj.handle_click_event()
+        match GameObject.ordered_collections["selected_game_object"]:
+            case [Building(), SoldierRecruitment() as recruitment]:
+                recruitment.handle_click_event()
 
         if GameObject.unordered_collections["enemy_soldier"]:
             for enemy in GameObject.unordered_collections["enemy_soldier"]:
