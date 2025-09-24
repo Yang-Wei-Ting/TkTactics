@@ -20,10 +20,10 @@ class BuildingModel(GameObjectModel):
         self._unregister()
 
     def _register(self) -> None:
-        GameObjectModel.occupied_coordinates.add((self.x, self.y))
+        GameObjectModel.blue_coordinates.add((self.x, self.y))
 
     def _unregister(self) -> None:
-        GameObjectModel.occupied_coordinates.remove((self.x, self.y))
+        GameObjectModel.blue_coordinates.remove((self.x, self.y))
 
     def get_data(self) -> dict:
         data = {

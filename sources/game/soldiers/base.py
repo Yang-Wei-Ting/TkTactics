@@ -38,10 +38,17 @@ class SoldierModel(GameObjectModel):
         self._unregister()
 
     def _register(self) -> None:
-        GameObjectModel.occupied_coordinates.add((self.x, self.y))
+        if self.color == C.BLUE:
+            self.friend_coordinates = GameObjectModel.blue_coordinates
+            self.foe_coordinates = GameObjectModel.red_coordinates
+        else:
+            self.friend_coordinates = GameObjectModel.red_coordinates
+            self.foe_coordinates = GameObjectModel.blue_coordinates
+
+        self.friend_coordinates.add((self.x, self.y))
 
     def _unregister(self) -> None:
-        GameObjectModel.occupied_coordinates.remove((self.x, self.y))
+        self.friend_coordinates.remove((self.x, self.y))
 
     # GET
     def get_data(self) -> dict:
@@ -81,11 +88,13 @@ class SoldierModel(GameObjectModel):
             _, current = heapq.heappop(frontier)
 
             if other.get_distance_to(current) <= self.attack_range:
+                c = current
+
                 # Reconstruct path
                 path = []
-                while current:
-                    path.append(current)
-                    current = parent_table[current]
+                while c:
+                    path.append(c)
+                    c = parent_table[c]
                 path.reverse()
 
                 # Trim path to mobility range
@@ -102,7 +111,13 @@ class SoldierModel(GameObjectModel):
                     path_this_turn.append(step)
                     total_cost += step_cost
 
-                return tuple(path_this_turn)
+                try:
+                    while path_this_turn[-1] in self.friend_coordinates:
+                        path_this_turn.pop()
+                except IndexError:
+                    pass
+                else:
+                    return tuple(path_this_turn)
 
             for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
                 neighbor = x, y = current[0] + dx, current[1] + dy
@@ -110,7 +125,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and neighbor not in GameObjectModel.occupied_coordinates
+                    and neighbor not in self.foe_coordinates
                 ):
                     step_cost = GameObjectModel.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -485,7 +500,7 @@ class Soldier(GameObject):
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and neighbor not in GameObjectModel.occupied_coordinates
+                    and neighbor not in self.model.foe_coordinates
                 ):
                     step_cost = GameObjectModel.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -501,7 +516,7 @@ class Soldier(GameObject):
                         cost_table[neighbor] = new_cost
                         reachables.add(neighbor)
 
-        return reachables
+        return {c for c in reachables if c not in self.model.friend_coordinates}
 
     def _get_attackable_coordinates(self) -> set[tuple[int, int]]:
         coordinates = set()
