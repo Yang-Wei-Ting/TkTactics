@@ -491,6 +491,9 @@ class Soldier(GameObject):
         while frontier:
             cost_so_far, current = heapq.heappop(frontier)
 
+            if cost_so_far <= self.model.mobility and current not in self.model.friend_coordinates:
+                reachables.add(current)
+
             if cost_so_far >= self.model.mobility:
                 continue
 
@@ -508,15 +511,11 @@ class Soldier(GameObject):
 
                     new_cost = cost_so_far + step_cost
 
-                    if (
-                        new_cost <= self.model.mobility
-                        and (neighbor not in cost_table or new_cost < cost_table[neighbor])
-                    ):
+                    if neighbor not in cost_table or new_cost < cost_table[neighbor]:
                         heapq.heappush(frontier, (new_cost, neighbor))
                         cost_table[neighbor] = new_cost
-                        reachables.add(neighbor)
 
-        return {c for c in reachables if c not in self.model.friend_coordinates}
+        return reachables
 
     def _get_attackable_coordinates(self) -> set[tuple[int, int]]:
         coordinates = set()
