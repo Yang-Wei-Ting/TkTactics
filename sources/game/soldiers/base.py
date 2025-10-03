@@ -65,6 +65,56 @@ class SoldierModel(GameObjectModel):
         }
         return data
 
+    def get_reachable_coordinates(self, boundaries: tuple[int, int, int, int]) -> set[tuple[int, int]]:
+        x_min, x_max, y_min, y_max = boundaries
+
+        # Dijkstra
+        start = (self.x, self.y)
+        frontier = [(0, start)]
+        cost_table = {start: 0}
+        reachables = set()
+
+        while frontier:
+            cost_so_far, current = heapq.heappop(frontier)
+
+            if cost_so_far <= self.mobility:
+                reachables.add(current)
+
+            if cost_so_far >= self.mobility:
+                continue
+
+            for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
+                neighbor = x, y = current[0] + dx, current[1] + dy
+
+                if (
+                    x_min <= x <= x_max
+                    and y_min <= y <= y_max
+                    and neighbor not in GameObjectModel.occupied_coordinates
+                ):
+                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
+                    if step_cost == -1:
+                        step_cost = self.mobility
+
+                    new_cost = cost_so_far + step_cost
+
+                    if neighbor not in cost_table or new_cost < cost_table[neighbor]:
+                        heapq.heappush(frontier, (new_cost, neighbor))
+                        cost_table[neighbor] = new_cost
+
+        return reachables
+
+    def get_attackable_coordinates(self) -> set[tuple[int, int]]:
+        coordinates = set()
+
+        for offset in range(self.attack_range + 1):
+            for i in range(-offset, offset + 1):
+                j = offset - abs(i)
+                coordinates.add((self.x + i, self.y + j))
+                if j != 0:
+                    coordinates.add((self.x + i, self.y - j))
+
+        return coordinates
+
     def get_approaching_path(self, other: "SoldierModel | BuildingModel") -> tuple[tuple[int, int]]:
         """
         Use the A* pathfinding algorithm to compute the shortest path for self
@@ -434,7 +484,7 @@ class Soldier(GameObject):
             display.refresh()
 
     def _create_movement_highlights(self, boundaries: tuple[int, int, int, int], prepare_drop: bool) -> None:
-        for x, y in self._get_reachable_coordinates(boundaries):
+        for x, y in self.model.get_reachable_coordinates(boundaries):
             highlight = MovementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
             if prepare_drop:
                 self._movement_target_by_id[highlight.view._ids["main"]] = highlight
@@ -452,7 +502,7 @@ class Soldier(GameObject):
         )
 
         if prepare_drop:
-            coordinates = self._get_attackable_coordinates()
+            coordinates = self.model.get_attackable_coordinates()
             for soldier in self._foes:
                 if (soldier.model.x, soldier.model.y) in coordinates:
                     self._attack_target_by_id[soldier.view._ids["main"]] = soldier
@@ -463,53 +513,3 @@ class Soldier(GameObject):
 
         if highlight := GameObject.singletons.get("attack_range_highlight"):
             highlight.destroy()
-
-    def _get_reachable_coordinates(self, boundaries: tuple[int, int, int, int]) -> set[tuple[int, int]]:
-        x_min, x_max, y_min, y_max = boundaries
-
-        # Dijkstra
-        start = (self.model.x, self.model.y)
-        frontier = [(0, start)]
-        cost_table = {start: 0}
-        reachables = set()
-
-        while frontier:
-            cost_so_far, current = heapq.heappop(frontier)
-
-            if cost_so_far <= self.model.mobility:
-                reachables.add(current)
-
-            if cost_so_far >= self.model.mobility:
-                continue
-
-            for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
-                neighbor = x, y = current[0] + dx, current[1] + dy
-
-                if (
-                    x_min <= x <= x_max
-                    and y_min <= y <= y_max
-                    and neighbor not in GameObjectModel.occupied_coordinates
-                ):
-                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
-                    if step_cost == -1:
-                        step_cost = self.model.mobility
-
-                    new_cost = cost_so_far + step_cost
-
-                    if neighbor not in cost_table or new_cost < cost_table[neighbor]:
-                        heapq.heappush(frontier, (new_cost, neighbor))
-                        cost_table[neighbor] = new_cost
-
-        return reachables
-
-    def _get_attackable_coordinates(self) -> set[tuple[int, int]]:
-        coordinates = set()
-
-        for offset in range(self.model.attack_range + 1):
-            for i in range(-offset, offset + 1):
-                j = offset - abs(i)
-                coordinates.add((self.model.x + i, self.model.y + j))
-                if j != 0:
-                    coordinates.add((self.model.x + i, self.model.y - j))
-
-        return coordinates
