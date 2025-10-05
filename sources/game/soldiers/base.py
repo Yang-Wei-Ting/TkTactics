@@ -32,6 +32,11 @@ class SoldierModel(GameObjectModel):
         self.moved_this_turn = False
         self.attacked_this_turn = False
 
+        if self.color == C.BLUE:
+            self._boundaries = (1, C.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
+        else:
+            self._boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
+
         self._register()
 
     def destroy(self) -> None:
@@ -65,8 +70,8 @@ class SoldierModel(GameObjectModel):
         }
         return data
 
-    def get_reachable_coordinates(self, boundaries: tuple[int, int, int, int]) -> set[tuple[int, int]]:
-        x_min, x_max, y_min, y_max = boundaries
+    def get_reachable_coordinates(self) -> set[tuple[int, int]]:
+        x_min, x_max, y_min, y_max = self._boundaries
 
         # Dijkstra
         start = (self.x, self.y)
@@ -431,19 +436,17 @@ class Soldier(GameObject):
             if E.WINDOWING_SYSTEM == "x11":
                 self._destroy_highlights()
 
-            boundaries = (1, C.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
             prepare_drop = True
 
             if not self.model.moved_this_turn:
-                self._create_movement_highlights(boundaries, prepare_drop)
+                self._create_movement_highlights(prepare_drop)
 
             if not self.model.attacked_this_turn:
                 self._create_attack_range_highlight(prepare_drop)
         else:
-            boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
             prepare_drop = False
 
-            self._create_movement_highlights(boundaries, prepare_drop)
+            self._create_movement_highlights(prepare_drop)
             self._create_attack_range_highlight(prepare_drop)
 
         self.view.lift_widgets()
@@ -483,8 +486,8 @@ class Soldier(GameObject):
         if display := GameObject.singletons.get("stat_display"):
             display.refresh()
 
-    def _create_movement_highlights(self, boundaries: tuple[int, int, int, int], prepare_drop: bool) -> None:
-        for x, y in self.model.get_reachable_coordinates(boundaries):
+    def _create_movement_highlights(self, prepare_drop: bool) -> None:
+        for x, y in self.model.get_reachable_coordinates():
             highlight = MovementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
             if prepare_drop:
                 self._movement_target_by_id[highlight.view._ids["main"]] = highlight
