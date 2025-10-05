@@ -183,7 +183,7 @@ class SoldierModel(GameObjectModel):
 
     def get_damage_output_against(self, other: "SoldierModel | BuildingModel") -> float:
         multiplier = self.attack_multipliers.get(type(other).__name__, 1.0)
-        return self.attack * multiplier * (1.0 - other.defense)
+        return min(self.attack * multiplier * (1.0 - other.defense), other.health)
 
     # SET
     def move_to(self, x: int, y: int) -> None:
@@ -325,7 +325,7 @@ class Soldier(GameObject):
         self.model.assault(other.model)
         self.refresh()
 
-        if other.model.health > 0.0:
+        if other.model.health:
             # Blink a unit's image when it is being attacked
             other.view._widgets["main"].configure(image=Image.transparent_40x40)
             if "level" in other.view._widgets:
@@ -379,7 +379,7 @@ class Soldier(GameObject):
                 order_by = [-damage, other.model.health, distance]
             else:
                 action = MOVE_THEN_KILL
-                order_by = [-other.model.health, distance]
+                order_by = [-damage, distance]
 
             heapq.heappush(heap, (action, *order_by, i, path, other))
 
