@@ -103,20 +103,20 @@ class SoldierModel(GameObjectModel):
         return reachables
 
     def get_attackable_coordinates(self) -> set[tuple[int, int]]:
-        coordinates = set()
+        attackables = set()
 
         for offset in range(self.attack_range + 1):
             for i in range(-offset, offset + 1):
                 j = offset - abs(i)
-                coordinates.add((self.x + i, self.y + j))
+                attackables.add((self.x + i, self.y + j))
                 if j != 0:
-                    coordinates.add((self.x + i, self.y - j))
+                    attackables.add((self.x + i, self.y - j))
 
-        return coordinates
+        return attackables
 
     def get_approaching_path(self, other: "SoldierModel | BuildingModel") -> tuple[tuple[int, int]]:
         """
-        Use the A* pathfinding algorithm to compute the shortest path for self
+        Use the A* pathfinding algorithm to compute the cheapest path for self
         to move toward other until other is within self's attack range.
         Trim the path so that it ends at the furthest coordinate self can reach
         this turn and return it.
@@ -130,26 +130,26 @@ class SoldierModel(GameObjectModel):
             _, current = heapq.heappop(frontier)
 
             if other.get_distance_to(current) <= self.attack_range:
-                # Reconstruct path
-                path = []
-                while current:
-                    path.append(current)
-                    current = parent_table[current]
-                path.reverse()
+                c = current
 
-                # Trim path to mobility range
-                path_this_turn = [path[0]]
-                total_cost = 0
-                for step in path[1:]:
+                goal_path = []
+                while c:
+                    goal_path.append(c)
+                    c = parent_table[c]
+                goal_path.reverse()
+
+                path_this_turn = [goal_path[0]]
+                cost_this_turn = 0
+                for step in goal_path[1:]:
                     step_cost = GameState.cost_by_coordinate[step]
                     if step_cost == -1:
                         step_cost = self.mobility
 
-                    if total_cost + step_cost > self.mobility:
+                    if cost_this_turn + step_cost > self.mobility:
                         break
 
                     path_this_turn.append(step)
-                    total_cost += step_cost
+                    cost_this_turn += step_cost
 
                 return tuple(path_this_turn)
 
@@ -362,7 +362,7 @@ class Soldier(GameObject):
         MOVE_THEN_HIT = 2
         MOVE = 3
 
-        heap = []
+        priority_queue = []
 
         for i, other in enumerate(
             self._foes | GameObject.unordered_collections["critical_building"]
@@ -381,9 +381,9 @@ class Soldier(GameObject):
                 action = MOVE_THEN_KILL
                 order_by = [-damage, distance]
 
-            heapq.heappush(heap, (action, *order_by, i, path, other))
+            heapq.heappush(priority_queue, (action, *order_by, i, path, other))
 
-        action, *_, path, other = heapq.heappop(heap)
+        action, *_, path, other = heapq.heappop(priority_queue)
 
         self.move_to(*path[-1])
 
