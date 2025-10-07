@@ -84,7 +84,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and neighbor not in GameState.occupied_coordinates
+                    and neighbor not in GameState.unit_by_coordinate
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -155,7 +155,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and neighbor not in GameState.occupied_coordinates
+                    and neighbor not in GameState.unit_by_coordinate
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -300,17 +300,17 @@ class Soldier(GameObject):
             self._friends = GameObject.unordered_collections["enemy_soldier"]
             self._foes = GameObject.unordered_collections["allied_soldier"]
 
-        GameState.occupied_coordinates.add((self.model.x, self.model.y))
+        GameState.unit_by_coordinate[(self.model.x, self.model.y)] = self
         self._friends.add(self)
 
     def _unregister(self) -> None:
-        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
+        del GameState.unit_by_coordinate[(self.model.x, self.model.y)]
         self._friends.remove(self)
 
     def move_to(self, x: int, y: int) -> None:
-        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
+        del GameState.unit_by_coordinate[(self.model.x, self.model.y)]
         self.model.move_to(x, y)
-        GameState.occupied_coordinates.add((self.model.x, self.model.y))
+        GameState.unit_by_coordinate[(self.model.x, self.model.y)] = self
         self.refresh()
 
     def assault(self, other: "Soldier | Building") -> None:
