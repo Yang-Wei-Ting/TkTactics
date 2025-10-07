@@ -9,6 +9,7 @@ from game.highlights import AttackRangeHighlight, MovementHighlight
 from game.miscellaneous import Configuration as C
 from game.miscellaneous import Environment as E
 from game.miscellaneous import Image, get_pixels, msleep
+from game.states import GameState
 
 
 class SoldierModel(GameObjectModel):
@@ -43,10 +44,10 @@ class SoldierModel(GameObjectModel):
         self._unregister()
 
     def _register(self) -> None:
-        GameObjectModel.occupied_coordinates.add((self.x, self.y))
+        GameState.occupied_coordinates.add((self.x, self.y))
 
     def _unregister(self) -> None:
-        GameObjectModel.occupied_coordinates.remove((self.x, self.y))
+        GameState.occupied_coordinates.remove((self.x, self.y))
 
     # GET
     def get_data(self) -> dict:
@@ -94,9 +95,9 @@ class SoldierModel(GameObjectModel):
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and neighbor not in GameObjectModel.occupied_coordinates
+                    and neighbor not in GameState.occupied_coordinates
                 ):
-                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
+                    step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
                         step_cost = self.mobility
 
@@ -147,7 +148,7 @@ class SoldierModel(GameObjectModel):
                 path_this_turn = [path[0]]
                 total_cost = 0
                 for step in path[1:]:
-                    step_cost = GameObjectModel.cost_by_coordinate[step]
+                    step_cost = GameState.cost_by_coordinate[step]
                     if step_cost == -1:
                         step_cost = self.mobility
 
@@ -165,9 +166,9 @@ class SoldierModel(GameObjectModel):
                 if (
                     0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and neighbor not in GameObjectModel.occupied_coordinates
+                    and neighbor not in GameState.occupied_coordinates
                 ):
-                    step_cost = GameObjectModel.cost_by_coordinate[neighbor]
+                    step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
                         step_cost = self.mobility
 
