@@ -35,8 +35,12 @@ class SoldierModel(GameObjectModel):
 
         if self.color == C.BLUE:
             self._boundaries = (1, C.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
+            self._friendly_coordinates = GameState.blue_unit_by_coordinate
+            self._hostile_coordinates = GameState.red_unit_by_coordinate
         else:
             self._boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
+            self._friendly_coordinates = GameState.red_unit_by_coordinate
+            self._hostile_coordinates = GameState.blue_unit_by_coordinate
 
     # GET
     def get_data(self) -> dict:
@@ -84,7 +88,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and neighbor not in GameState.unit_by_coordinate
+                    and neighbor not in (self._friendly_coordinates | self._hostile_coordinates)
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -155,7 +159,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and neighbor not in GameState.unit_by_coordinate
+                    and neighbor not in (self._friendly_coordinates | self._hostile_coordinates)
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -294,23 +298,27 @@ class Soldier(GameObject):
 
     def _register(self) -> None:
         if self.model.color == C.BLUE:
+            self._friend_by_coordinate = GameState.blue_unit_by_coordinate
+            self._foe_by_coordinate = GameState.red_unit_by_coordinate
             self._friends = GameObject.unordered_collections["allied_soldier"]
             self._foes = GameObject.unordered_collections["enemy_soldier"]
         else:
+            self._friend_by_coordinate = GameState.red_unit_by_coordinate
+            self._foe_by_coordinate = GameState.blue_unit_by_coordinate
             self._friends = GameObject.unordered_collections["enemy_soldier"]
             self._foes = GameObject.unordered_collections["allied_soldier"]
 
-        GameState.unit_by_coordinate[(self.model.x, self.model.y)] = self
+        self._friend_by_coordinate[(self.model.x, self.model.y)] = self
         self._friends.add(self)
 
     def _unregister(self) -> None:
-        del GameState.unit_by_coordinate[(self.model.x, self.model.y)]
+        del self._friend_by_coordinate[(self.model.x, self.model.y)]
         self._friends.remove(self)
 
     def move_to(self, x: int, y: int) -> None:
-        del GameState.unit_by_coordinate[(self.model.x, self.model.y)]
+        del self._friend_by_coordinate[(self.model.x, self.model.y)]
         self.model.move_to(x, y)
-        GameState.unit_by_coordinate[(self.model.x, self.model.y)] = self
+        self._friend_by_coordinate[(self.model.x, self.model.y)] = self
         self.refresh()
 
     def assault(self, other: "Soldier | Building") -> None:
