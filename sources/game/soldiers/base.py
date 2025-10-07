@@ -374,9 +374,7 @@ class Soldier(GameObject):
 
         priority_queue = []
 
-        for i, other in enumerate(
-            self._foes | GameObject.unordered_collections["critical_building"]
-        ):
+        for i, other in enumerate(self._foe_by_coordinate.values()):
             path = self.model.get_approaching_path(other.model)
             distance = other.model.get_distance_to(path[-1])
             damage = self.model.get_damage_output_against(other.model)
