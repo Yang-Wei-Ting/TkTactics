@@ -76,7 +76,7 @@ class SoldierModel(GameObjectModel):
         while frontier:
             cost_so_far, current = heapq.heappop(frontier)
 
-            if cost_so_far <= self.mobility:
+            if cost_so_far <= self.mobility and current not in self._friendly_coordinates:
                 reachables.add(current)
 
             if cost_so_far >= self.mobility:
@@ -88,7 +88,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     x_min <= x <= x_max
                     and y_min <= y <= y_max
-                    and neighbor not in (self._friendly_coordinates | self._hostile_coordinates)
+                    and neighbor not in self._hostile_coordinates
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -154,7 +154,10 @@ class SoldierModel(GameObjectModel):
                     path_this_turn.append(step)
                     cost_this_turn += step_cost
 
-                if cost_table[current] < optimal_goal_cost:
+                if (
+                    cost_table[current] < optimal_goal_cost
+                    and path_this_turn[-1] not in self._friendly_coordinates
+                ):
                     optimal_path_this_turn = path_this_turn
                     optimal_goal_cost = cost_table[current]
 
@@ -166,7 +169,7 @@ class SoldierModel(GameObjectModel):
                 if (
                     0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
                     and 0 <= y < C.VERTICAL_TILE_COUNT
-                    and neighbor not in (self._friendly_coordinates | self._hostile_coordinates)
+                    and neighbor not in self._hostile_coordinates
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
                     if step_cost == -1:
@@ -494,7 +497,7 @@ class Soldier(GameObject):
             display.refresh()
 
     def _create_movement_highlights(self, prepare_drop: bool) -> None:
-        for x, y in self.model.get_reachable_coordinates() - {(self.model.x, self.model.y)}:
+        for x, y in self.model.get_reachable_coordinates():
             highlight = MovementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
             if prepare_drop:
                 self._movement_target_by_id[highlight.view._ids["main"]] = highlight
