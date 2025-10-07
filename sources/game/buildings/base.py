@@ -67,10 +67,10 @@ class BuildingView(GameObjectView):
 class Building(GameObject):
 
     def _register(self) -> None:
-        GameState.occupied_coordinates.add((self.model.x, self.model.y))
+        GameState.unit_by_coordinate[(self.model.x, self.model.y)] = self
 
     def _unregister(self) -> None:
-        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
+        del GameState.unit_by_coordinate[(self.model.x, self.model.y)]
 
     @property
     def event_handlers(self) -> dict[str, Callable]:

@@ -94,7 +94,7 @@ class SoldierRecruitment(GameObject):
             if (
                 0 < x < C.HORIZONTAL_FIELD_TILE_COUNT - 1
                 and 0 < y < C.VERTICAL_TILE_COUNT - 1
-                and (x, y) not in GameState.occupied_coordinates
+                and (x, y) not in GameState.unit_by_coordinate
             ):
                 PlacementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
 
