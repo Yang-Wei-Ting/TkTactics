@@ -38,17 +38,6 @@ class SoldierModel(GameObjectModel):
         else:
             self._boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
 
-        self._register()
-
-    def destroy(self) -> None:
-        self._unregister()
-
-    def _register(self) -> None:
-        GameState.occupied_coordinates.add((self.x, self.y))
-
-    def _unregister(self) -> None:
-        GameState.occupied_coordinates.remove((self.x, self.y))
-
     # GET
     def get_data(self) -> dict:
         data = {
@@ -191,10 +180,8 @@ class SoldierModel(GameObjectModel):
         """
         Move self to the new coordinate.
         """
-        self._unregister()
         self.x = x
         self.y = y
-        self._register()
         self.moved_this_turn = True
 
     def assault(self, other: "SoldierModel | BuildingModel") -> None:
@@ -313,13 +300,17 @@ class Soldier(GameObject):
             self._friends = GameObject.unordered_collections["enemy_soldier"]
             self._foes = GameObject.unordered_collections["allied_soldier"]
 
+        GameState.occupied_coordinates.add((self.model.x, self.model.y))
         self._friends.add(self)
 
     def _unregister(self) -> None:
+        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
         self._friends.remove(self)
 
     def move_to(self, x: int, y: int) -> None:
+        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
         self.model.move_to(x, y)
+        GameState.occupied_coordinates.add((self.model.x, self.model.y))
         self.refresh()
 
     def assault(self, other: "Soldier | Building") -> None:

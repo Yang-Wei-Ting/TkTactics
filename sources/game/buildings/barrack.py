@@ -15,9 +15,11 @@ class BarrackView(BuildingView):
 class Barrack(Building):
 
     def _register(self) -> None:
+        super()._register()
         GameObject.unordered_collections["critical_building"].add(self)
 
     def _unregister(self) -> None:
+        super()._unregister()
         GameObject.unordered_collections["critical_building"].remove(self)
 
     def _handle_selection(self) -> None:
