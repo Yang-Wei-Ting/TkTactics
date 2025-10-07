@@ -13,19 +13,6 @@ class BuildingModel(GameObjectModel):
     defense = 0.4
     health = 400.0
 
-    def __init__(self, x: int, y: int) -> None:
-        super().__init__(x, y)
-        self._register()
-
-    def destroy(self) -> None:
-        self._unregister()
-
-    def _register(self) -> None:
-        GameState.occupied_coordinates.add((self.x, self.y))
-
-    def _unregister(self) -> None:
-        GameState.occupied_coordinates.remove((self.x, self.y))
-
     def get_data(self) -> dict:
         data = {
             "class": "building",
@@ -78,6 +65,12 @@ class BuildingView(GameObjectView):
 
 
 class Building(GameObject):
+
+    def _register(self) -> None:
+        GameState.occupied_coordinates.add((self.model.x, self.model.y))
+
+    def _unregister(self) -> None:
+        GameState.occupied_coordinates.remove((self.model.x, self.model.y))
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
