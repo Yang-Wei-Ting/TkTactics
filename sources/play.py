@@ -6,7 +6,6 @@ import sys
 import tkinter as tk
 from random import choices
 
-from game.base import GameObjectModel
 from game.buildings import Barrack
 from game.controls import EndTurnControl
 from game.displays import CoinDisplay, DayDisplay, ProductionDisplay, StatDisplay
@@ -14,6 +13,7 @@ from game.miscellaneous import Configuration as C
 from game.miscellaneous import Environment as E
 from game.miscellaneous import Image, Style, get_pixels
 from game.soldiers import Hero
+from game.states import GameState
 
 
 class Program:
@@ -87,12 +87,12 @@ class Program:
         for y in range(C.VERTICAL_TILE_COUNT):
             for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
                 [image] = choices(FIELDS, weights=WEIGHTS)
-                GameObjectModel.image_id_by_coordinate[(x, y)] = self._canvas.create_image(*get_pixels(x, y), image=image)
+                GameState.image_id_by_coordinate[(x, y)] = self._canvas.create_image(*get_pixels(x, y), image=image)
 
                 if image in {Image.rock, Image.tree}:
-                    GameObjectModel.cost_by_coordinate[(x, y)] = -1
+                    GameState.cost_by_coordinate[(x, y)] = -1
                 else:
-                    GameObjectModel.cost_by_coordinate[(x, y)] = 1
+                    GameState.cost_by_coordinate[(x, y)] = 1
 
     def _create_initial_buildings(self) -> None:
         x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
@@ -100,9 +100,9 @@ class Program:
 
         for dx, dy in {(0, 0), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)}:
             coordinate = (x + dx, y + dy)
-            self._canvas.delete(GameObjectModel.image_id_by_coordinate[coordinate])
-            GameObjectModel.image_id_by_coordinate[coordinate] = self._canvas.create_image(*get_pixels(*coordinate), image=Image.grass_1)
-            GameObjectModel.cost_by_coordinate[coordinate] = 1
+            self._canvas.delete(GameState.image_id_by_coordinate[coordinate])
+            GameState.image_id_by_coordinate[coordinate] = self._canvas.create_image(*get_pixels(*coordinate), image=Image.grass_1)
+            GameState.cost_by_coordinate[coordinate] = 1
 
         Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
 

@@ -7,6 +7,7 @@ from game.highlights import PlacementHighlight
 from game.miscellaneous import Configuration as C
 from game.miscellaneous import Image, ImproperlyConfigured
 from game.soldiers.base import Soldier
+from game.states import GameState
 
 
 class SoldierRecruitmentModel(GameObjectModel):
@@ -93,7 +94,7 @@ class SoldierRecruitment(GameObject):
             if (
                 0 < x < C.HORIZONTAL_FIELD_TILE_COUNT - 1
                 and 0 < y < C.VERTICAL_TILE_COUNT - 1
-                and (x, y) not in GameObjectModel.occupied_coordinates
+                and (x, y) not in GameState.occupied_coordinates
             ):
                 PlacementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
 

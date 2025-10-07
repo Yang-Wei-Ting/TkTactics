@@ -5,6 +5,7 @@ from tkinter import ttk
 from game.base import GameObject, GameObjectModel, GameObjectView
 from game.miscellaneous import Configuration as C
 from game.miscellaneous import Image, get_pixels
+from game.states import GameState
 
 
 class BuildingModel(GameObjectModel):
@@ -20,10 +21,10 @@ class BuildingModel(GameObjectModel):
         self._unregister()
 
     def _register(self) -> None:
-        GameObjectModel.occupied_coordinates.add((self.x, self.y))
+        GameState.occupied_coordinates.add((self.x, self.y))
 
     def _unregister(self) -> None:
-        GameObjectModel.occupied_coordinates.remove((self.x, self.y))
+        GameState.occupied_coordinates.remove((self.x, self.y))
 
     def get_data(self) -> dict:
         data = {
