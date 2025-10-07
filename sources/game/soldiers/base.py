@@ -121,6 +121,8 @@ class SoldierModel(GameObjectModel):
         Trim the path so that it ends at the furthest coordinate self can reach
         this turn and return it.
         """
+        x_min, x_max, y_min, y_max = self._boundaries
+
         start = (self.x, self.y)
         frontier = [(0, start)]
         cost_table = {start: 0}
@@ -167,8 +169,8 @@ class SoldierModel(GameObjectModel):
                 neighbor = x, y = current[0] + dx, current[1] + dy
 
                 if (
-                    0 <= x < C.HORIZONTAL_FIELD_TILE_COUNT
-                    and 0 <= y < C.VERTICAL_TILE_COUNT
+                    x_min <= x <= x_max
+                    and y_min <= y <= y_max
                     and neighbor not in self._hostile_coordinates
                 ):
                     step_cost = GameState.cost_by_coordinate[neighbor]
