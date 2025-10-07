@@ -487,7 +487,7 @@ class Soldier(GameObject):
             display.refresh()
 
     def _create_movement_highlights(self, prepare_drop: bool) -> None:
-        for x, y in self.model.get_reachable_coordinates():
+        for x, y in self.model.get_reachable_coordinates() - {(self.model.x, self.model.y)}:
             highlight = MovementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
             if prepare_drop:
                 self._movement_target_by_id[highlight.view._ids["main"]] = highlight
