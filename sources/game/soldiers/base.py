@@ -126,6 +126,9 @@ class SoldierModel(GameObjectModel):
         cost_table = {start: 0}
         parent_table = {start: None}
 
+        optimal_path_this_turn = [start]
+        optimal_goal_cost = 65535
+
         while frontier:
             _, current = heapq.heappop(frontier)
 
@@ -151,7 +154,11 @@ class SoldierModel(GameObjectModel):
                     path_this_turn.append(step)
                     cost_this_turn += step_cost
 
-                return tuple(path_this_turn)
+                if cost_table[current] < optimal_goal_cost:
+                    optimal_path_this_turn = path_this_turn
+                    optimal_goal_cost = cost_table[current]
+
+                continue
 
             for dx, dy in {(1, 0), (0, 1), (-1, 0), (0, -1)}:
                 neighbor = x, y = current[0] + dx, current[1] + dy
@@ -173,7 +180,7 @@ class SoldierModel(GameObjectModel):
                         parent_table[neighbor] = current
 
         # TODO: When other is surrounded by obstacles, self should try to approach it.
-        return (start,)
+        return tuple(optimal_path_this_turn)
 
     def get_damage_output_against(self, other: "SoldierModel | BuildingModel") -> float:
         multiplier = self.attack_multipliers.get(type(other).__name__, 1.0)
