@@ -181,7 +181,10 @@ class SoldierModel(GameObjectModel):
                     new_cost = cost_table[current] + step_cost
 
                     if neighbor not in cost_table or new_cost < cost_table[neighbor]:
-                        heapq.heappush(frontier, (new_cost + other.get_distance_to(neighbor), neighbor))
+                        heapq.heappush(
+                            frontier,
+                            (new_cost + other.get_distance_to(neighbor), neighbor),
+                        )
                         cost_table[neighbor] = new_cost
                         parent_table[neighbor] = current
 
