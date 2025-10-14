@@ -51,6 +51,9 @@ class Program:
         E.WINDOWING_SYSTEM = self._window.call("tk", "windowingsystem")
 
     def _check_requirements(self) -> None:
+        if sys.version_info < (3, 12):
+            sys.exit("Python version >= 3.12 is required.")
+
         if E.WINDOWING_SYSTEM == "aqua":
             sys.exit("Aqua windowing system is currently not supported.")
 
