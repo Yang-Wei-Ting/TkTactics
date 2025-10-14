@@ -30,6 +30,7 @@ class SoldierModel(GameObjectModel):
         self.color = color
         self.level = level
         self.experience = 0
+        self.max_health = self.health
         self.moved_this_turn = False
         self.attacked_this_turn = False
 
@@ -56,7 +57,7 @@ class SoldierModel(GameObjectModel):
             "attack_range": self.attack_range,
             "defense": self.defense,
             "health": self.health,
-            "max_health": type(self).health,
+            "max_health": self.max_health,
             "mobility": self.mobility,
             "cost": self.cost,
             "moved_this_turn": self.moved_this_turn,
@@ -212,7 +213,7 @@ class SoldierModel(GameObjectModel):
         """
         Restore self's health by amount (cannot exceed the maximum value).
         """
-        self.health = min(self.health + amount, type(self).health)
+        self.health = min(self.health + amount, self.max_health)
 
     def _learn(self, experience: int = 1) -> None:
         self.experience += experience
@@ -223,6 +224,8 @@ class SoldierModel(GameObjectModel):
             self.level += 1
             self.attack *= 1.2
             self.defense += 0.05
+            self.health += self.max_health * 0.1
+            self.max_health *= 1.1
 
 
 class SoldierView(GameObjectView):
