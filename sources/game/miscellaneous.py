@@ -1,3 +1,5 @@
+import shlex
+import subprocess
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
@@ -51,7 +53,25 @@ class ImproperlyConfigured(Exception):
     pass
 
 
+def execute(command: str) -> str:
+    options = {"capture_output": True, "check": True, "text": True}
+    return subprocess.run(shlex.split(command), **options).stdout.rstrip()
+
+
+def get_dpi() -> int:
+    try:
+        dpi = int(execute("xrdb -get Xft.dpi"))
+        if dpi <= 0:
+            raise ValueError
+    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+        dpi = 96
+
+    return dpi
+
+
 class Style:
+
+    _dpi = None
 
     @classmethod
     def initialize(cls) -> None:
@@ -91,13 +111,13 @@ class Style:
         style.configure(
             "OutcomeBanner.Black_CustomWood.TButton",
             compound="center",
-            font=("Courier", 36, "bold italic"),
+            font=("Courier", cls._normalize_font_size(36), "bold italic"),
             image=Image.outcome_banner,
         )
         style.configure(
             "LargePanelBox.Black_CustomWood.TButton",
             compound="center",
-            font=("Courier", 18, "bold"),
+            font=("Courier", cls._normalize_font_size(18), "bold"),
             image=Image.large_panel_box,
         )
         style.configure(
@@ -107,7 +127,7 @@ class Style:
         style.configure(
             "SmallPanelBox.Black_CustomWood.TButton",
             compound="center",
-            font=("Courier", 18, "bold"),
+            font=("Courier", cls._normalize_font_size(18), "bold"),
             image=Image.small_panel_box,
         )
         style.configure(
@@ -138,6 +158,13 @@ class Style:
             thickness=5,
             troughcolor="Red",
         )
+
+    @classmethod
+    def _normalize_font_size(cls, font_size: int) -> int:
+        if cls._dpi is None:
+            cls._dpi = get_dpi()
+
+        return int(font_size * 96 / cls._dpi)
 
 
 def get_pixels(x: int, y: int, *, x_pixel_shift: float = 0.0, y_pixel_shift: float = 0.0) -> tuple[float, float]:
