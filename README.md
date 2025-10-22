@@ -39,6 +39,7 @@ Weak against: Archers, Heroes
 ![](images/soldiers/red_archer.gif)
 
 High attack range  
+Weak attack  
 Strong against: Infantries  
 Weak against: Cavalries, Heroes
 
