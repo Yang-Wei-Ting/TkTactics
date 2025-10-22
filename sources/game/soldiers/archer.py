@@ -3,6 +3,7 @@ from game.soldiers.base import Soldier, SoldierModel, SoldierView
 
 class ArcherModel(SoldierModel):
 
+    attack = 20.0
     attack_multipliers = {
         "CavalryModel": 0.7,
         "HeroModel": 0.7,
