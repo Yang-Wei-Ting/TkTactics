@@ -326,12 +326,10 @@ class Soldier(GameObject):
             self._friendly_unit_by_coordinate = GameState.blue_unit_by_coordinate
             self._hostile_unit_by_coordinate = GameState.red_unit_by_coordinate
             self._friendly_soldiers = GameState.soldiers["blue"]
-            self._hostile_soldiers = GameState.soldiers["red"]
         else:
             self._friendly_unit_by_coordinate = GameState.red_unit_by_coordinate
             self._hostile_unit_by_coordinate = GameState.blue_unit_by_coordinate
             self._friendly_soldiers = GameState.soldiers["red"]
-            self._hostile_soldiers = GameState.soldiers["blue"]
 
         self._friendly_unit_by_coordinate[(self.model.x, self.model.y)] = self
         self._friendly_soldiers.add(self)
@@ -531,9 +529,9 @@ class Soldier(GameObject):
 
         if prepare_drop:
             coordinates = self.model.get_attackable_coordinates()
-            for soldier in self._hostile_soldiers:
-                if (soldier.model.x, soldier.model.y) in coordinates:
-                    self._attack_target_by_id[soldier.view._ids["main"]] = soldier
+            for unit in self._hostile_unit_by_coordinate.values():
+                if (unit.model.x, unit.model.y) in coordinates:
+                    self._attack_target_by_id[unit.view._ids["main"]] = unit
 
     def _destroy_highlights(self) -> None:
         for highlight in set(GameState.highlights["movement"]):
