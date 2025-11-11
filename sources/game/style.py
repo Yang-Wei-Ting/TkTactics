@@ -91,9 +91,29 @@ class Style:
         style.configure(
             "Green_Red.Horizontal.TProgressbar",
             background="Green",
+            bordercolor="Red",
             borderwidth=0,
+            pbarrelief=tk.FLAT,
             thickness=5,
             troughcolor="Red",
+        )
+        style.element_create("Green_Red.Horizontal.Progressbar.trough", "from", "clam")
+        style.layout(
+            "Green_Red.Horizontal.TProgressbar",
+            [
+                (
+                    "Green_Red.Horizontal.Progressbar.trough",
+                    {
+                        "children": [
+                            (
+                                "Green_Red.Horizontal.Progressbar.pbar",
+                                {"side": tk.LEFT, "sticky": tk.NS},
+                            ),
+                        ],
+                        "sticky": tk.NSEW,
+                    },
+                ),
+            ],
         )
 
     @classmethod
