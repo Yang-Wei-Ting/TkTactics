@@ -61,8 +61,8 @@ class BuildingView(GameObjectView):
             image=getattr(Image, type(self).__name__.removesuffix("View").lower()),
         )
         self._widgets["health_bar"].configure(
-            value=data["health"],
-            maximum=data["max_health"],
+            value=round(data["health"], 2),
+            maximum=round(data["max_health"], 2),
         )
 
 
