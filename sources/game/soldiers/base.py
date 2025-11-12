@@ -285,7 +285,10 @@ class SoldierView(GameObjectView):
             image=getattr(Image, f"{color_name}_level_{data["level"]}"),
             style=f"Flat.Custom{color_name.capitalize()}.TButton",
         )
-        self._widgets["health_bar"].configure(maximum=data["max_health"], value=data["health"])
+        self._widgets["health_bar"].configure(
+            maximum=round(data["max_health"], 2),
+            value=round(data["health"], 2),
+        )
 
         if self._ids:
             self.canvas.coords(
