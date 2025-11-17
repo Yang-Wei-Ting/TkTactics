@@ -1,5 +1,6 @@
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.miscellaneous import get_pixels
+from game.states import GameState
+from game.utilities import get_pixels
 
 
 class MovementHighlightModel(GameObjectModel):
@@ -26,7 +27,7 @@ class MovementHighlightView(GameObjectView):
 class MovementHighlight(GameObject):
 
     def _register(self) -> None:
-        GameObject.unordered_collections["movement_highlight"].add(self)
+        GameState.highlights["movement"].add(self)
 
     def _unregister(self) -> None:
-        GameObject.unordered_collections["movement_highlight"].remove(self)
+        GameState.highlights["movement"].remove(self)

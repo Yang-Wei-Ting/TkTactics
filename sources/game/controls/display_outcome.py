@@ -2,14 +2,15 @@ from collections.abc import Callable
 from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.miscellaneous import Configuration as C
+from game.configurations import Dimension
+from game.states import GameState
 
 
 class DisplayOutcomeControlModel(GameObjectModel):
 
     def __init__(self, text: str) -> None:
-        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
-        y = C.VERTICAL_TILE_COUNT // 2
+        x = Dimension.HORIZONTAL_FIELD_TILE_COUNT // 2
+        y = Dimension.VERTICAL_TILE_COUNT // 2
         super().__init__(x, y)
         self.text = text
 
@@ -41,16 +42,16 @@ class DisplayOutcomeControlView(GameObjectView):
 class DisplayOutcomeControl(GameObject):
 
     def __init__(self, model: DisplayOutcomeControlModel, view: DisplayOutcomeControlView) -> None:
-        if control := GameObject.singletons.get("display_outcome_control"):
+        if control := GameState.controls["display_outcome"]:
             control.handle_click_event()
 
         super().__init__(model, view)
 
     def _register(self) -> None:
-        GameObject.singletons["display_outcome_control"] = self
+        GameState.controls["display_outcome"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["display_outcome_control"]
+        GameState.controls["display_outcome"] = None
 
     @property
     def event_handlers(self) -> dict[str, Callable]:

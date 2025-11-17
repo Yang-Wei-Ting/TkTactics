@@ -1,5 +1,5 @@
-from game.base import GameObject
 from game.buildings.base import Building, BuildingModel, BuildingView
+from game.states import GameState
 
 
 class WallModel(BuildingModel):
@@ -16,8 +16,8 @@ class Wall(Building):
 
     def _register(self) -> None:
         super()._register()
-        GameObject.unordered_collections["noncritical_building"].add(self)
+        GameState.buildings["noncritical"].add(self)
 
     def _unregister(self) -> None:
         super()._unregister()
-        GameObject.unordered_collections["noncritical_building"].remove(self)
+        GameState.buildings["noncritical"].remove(self)

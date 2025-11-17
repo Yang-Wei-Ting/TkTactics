@@ -1,5 +1,7 @@
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.miscellaneous import Image, get_pixels
+from game.images import Image
+from game.states import GameState
+from game.utilities import get_pixels
 
 
 class AttackRangeHighlightModel(GameObjectModel):
@@ -34,7 +36,7 @@ class AttackRangeHighlightView(GameObjectView):
 class AttackRangeHighlight(GameObject):
 
     def _register(self) -> None:
-        GameObject.singletons["attack_range_highlight"] = self
+        GameState.highlights["attack_range"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["attack_range_highlight"]
+        GameState.highlights["attack_range"] = None

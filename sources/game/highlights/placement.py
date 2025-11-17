@@ -2,8 +2,9 @@ from collections.abc import Callable
 from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Image, ImproperlyConfigured
+from game.configurations import Color
+from game.images import Image
+from game.states import GameState
 
 
 class PlacementHighlightModel(GameObjectModel):
@@ -28,33 +29,29 @@ class PlacementHighlightView(GameObjectView):
 class PlacementHighlight(GameObject):
 
     def _register(self) -> None:
-        GameObject.unordered_collections["placement_highlight"].add(self)
+        GameState.highlights["placement"].add(self)
 
     def _unregister(self) -> None:
-        GameObject.unordered_collections["placement_highlight"].remove(self)
+        GameState.highlights["placement"].remove(self)
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
         return {"click": self.handle_click_event}
 
     def handle_click_event(self) -> None:
-        display = GameObject.singletons.get("coin_display")
-        if not display:
-            raise ImproperlyConfigured
+        recruitment = GameState.selected_game_objects[-1]
 
-        recruitment = GameObject.ordered_collections["selected_game_object"][-1]
+        GameState.displays["coin"].model.coin -= recruitment.target.get_model_class().cost
+        GameState.displays["coin"].refresh()
 
-        display.model.coin -= recruitment.target.get_model_class().cost
-        display.refresh()
-
-        for _recruitment in GameObject.unordered_collections["barrack_recruitment"]:
+        for _recruitment in GameState.recruitments["barrack"]:
             _recruitment.refresh()
 
         soldier = recruitment.target.create(
             {
                 "x": self.model.x,
                 "y": self.model.y,
-                "color": C.BLUE,
+                "color": Color.BLUE,
             },
             {
                 "canvas": self.view.canvas,
