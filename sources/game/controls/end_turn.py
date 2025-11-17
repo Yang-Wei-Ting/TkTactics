@@ -7,23 +7,22 @@ from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
 from game.buildings.base import Building
+from game.configurations import Color, Dimension
 from game.controls.display_outcome import DisplayOutcomeControl
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Environment as E
-from game.miscellaneous import ImproperlyConfigured, msleep
 from game.recruitments.base import SoldierRecruitment
 from game.soldiers import Archer, Cavalry, Infantry
 from game.soldiers.base import Soldier
-from game.states import GameState
+from game.states import Environment, GameState
+from game.utilities import msleep
 
 
 def block_user_input_during(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         overlay = tk.Toplevel(self.view.canvas.master)
-        overlay.wm_geometry(f"{E.SCREEN_WIDTH}x{E.SCREEN_HEIGHT}+0+0")
+        overlay.wm_geometry(f"{Environment.screen_width}x{Environment.screen_height}+0+0")
 
-        match E.WINDOWING_SYSTEM:
+        match Environment.windowing_system:
             case "win32":
                 overlay.wm_attributes("-alpha", 0.01, "-disabled", 1, "-topmost", 1)
                 overlay.wm_overrideredirect(True)
@@ -71,10 +70,10 @@ class EndTurnControl(GameObject):
         super().__init__(model, view)
 
     def _register(self) -> None:
-        GameObject.singletons["end_turn_control"] = self
+        GameState.controls["end_turn"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["end_turn_control"]
+        GameState.controls["end_turn"] = None
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
@@ -82,41 +81,37 @@ class EndTurnControl(GameObject):
 
     @block_user_input_during
     def handle_click_event(self) -> None:
-        match GameObject.ordered_collections["selected_game_object"]:
+        match GameState.selected_game_objects:
             case [Building(), SoldierRecruitment() as recruitment]:
                 recruitment.handle_click_event()
 
-        if GameObject.unordered_collections["enemy_soldier"]:
-            for enemy in GameObject.unordered_collections["enemy_soldier"]:
-                enemy.model.moved_this_turn = False
-                enemy.model.attacked_this_turn = False
-                enemy.refresh()
+        if GameState.soldiers["red"]:
+            for soldier in GameState.soldiers["red"]:
+                soldier.model.moved_this_turn = False
+                soldier.model.attacked_this_turn = False
+                soldier.refresh()
 
             self._execute_computer_turn()
         else:
             next(self._day_generator_iterator)
 
-        for ally in GameObject.unordered_collections["allied_soldier"]:
-            ally.model.moved_this_turn = False
-            ally.model.attacked_this_turn = False
-            ally.refresh()
+        for soldier in GameState.soldiers["blue"]:
+            soldier.model.moved_this_turn = False
+            soldier.model.attacked_this_turn = False
+            soldier.refresh()
 
     def _execute_computer_turn(self) -> None:
-        allied_soldiers = GameObject.unordered_collections["allied_soldier"]
-        enemy_soldiers = GameObject.unordered_collections["enemy_soldier"]
-        critical_buildings = GameObject.unordered_collections["critical_building"]
-
-        if not allied_soldiers and not critical_buildings:
+        if not GameState.soldiers["blue"] and not GameState.buildings["critical"]:
             DisplayOutcomeControl.create(
                 {"text": "You have been defeated."},
                 {"canvas": self.view.canvas},
             )
             return
 
-        for enemy in enemy_soldiers:
-            enemy.hunt()
+        for soldier in GameState.soldiers["red"]:
+            soldier.hunt()
 
-            if not allied_soldiers and not critical_buildings:
+            if not GameState.soldiers["blue"] and not GameState.buildings["critical"]:
                 DisplayOutcomeControl.create(
                     {"text": "You have been defeated."},
                     {"canvas": self.view.canvas},
@@ -124,22 +119,15 @@ class EndTurnControl(GameObject):
                 break
 
     def _day_generator_function(self) -> Iterator[None]:
-        day_display = GameObject.singletons.get("day_display")
-        coin_display = GameObject.singletons.get("coin_display")
-        if not day_display or not coin_display:
-            raise ImproperlyConfigured
-
-        allied_soldiers = GameObject.unordered_collections["allied_soldier"]
-
         while True:
-            day_display.model.day += 1
-            day_display.refresh()
-            for ally in allied_soldiers:
-                ally.restore_health_by(10.0)
+            GameState.displays["day"].model.day += 1
+            GameState.displays["day"].refresh()
+            for soldier in GameState.soldiers["blue"]:
+                soldier.restore_health_by(10.0)
             yield
 
-            day_display.model.day += 1
-            day_display.refresh()
+            GameState.displays["day"].model.day += 1
+            GameState.displays["day"].refresh()
             try:
                 next(self._wave_generator_iterator)
                 yield
@@ -151,17 +139,17 @@ class EndTurnControl(GameObject):
                     )
                     yield
 
-            day_display.model.day += 1
-            day_display.refresh()
-            coin_display.model.coin += 8 + (GameState.wave * 2)
-            coin_display.refresh()
-            for ally in allied_soldiers:
-                ally.restore_health_by(10.0)
+            GameState.displays["day"].model.day += 1
+            GameState.displays["day"].refresh()
+            GameState.displays["coin"].model.coin += 8 + (GameState.wave * 2)
+            GameState.displays["coin"].refresh()
+            for soldier in GameState.soldiers["blue"]:
+                soldier.restore_health_by(10.0)
             yield
 
     def _wave_generator_function(self) -> Iterator[None]:
-        H = C.HORIZONTAL_FIELD_TILE_COUNT
-        V = C.VERTICAL_TILE_COUNT
+        H = Dimension.HORIZONTAL_FIELD_TILE_COUNT
+        V = Dimension.VERTICAL_TILE_COUNT
         area_north_east = [
             *[(x, 0) for x in range(H - 3, H - 1)],     #     2
             *[(H - 1, y) for y in range(6)],            #     ▔▕ 6
@@ -195,7 +183,7 @@ class EndTurnControl(GameObject):
             GameState.wave += 1
             [(x, y)] = sample_n_coordinates_from_m_areas(1, 1)
             common_soldiers.pop().create(
-                {"x": x, "y": y, "color": C.RED},
+                {"x": x, "y": y, "color": Color.RED},
                 {"canvas": self.view.canvas},
             )
             yield
@@ -205,7 +193,7 @@ class EndTurnControl(GameObject):
             GameState.wave += 1
             for x, y in sample_n_coordinates_from_m_areas(n, m):
                 sample_common_soldiers().create(
-                    {"x": x, "y": y, "color": C.RED},
+                    {"x": x, "y": y, "color": Color.RED},
                     {"canvas": self.view.canvas},
                 )
             yield

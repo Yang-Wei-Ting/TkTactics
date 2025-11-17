@@ -1,7 +1,7 @@
 from tkinter import ttk
 
-from game.base import GameObject
 from game.displays.base import Display, DisplayModel, DisplayView
+from game.states import GameState
 
 
 class ProductionDisplayModel(DisplayModel):
@@ -21,7 +21,7 @@ class ProductionDisplayView(DisplayView):
 class ProductionDisplay(Display):
 
     def _register(self) -> None:
-        GameObject.singletons["production_display"] = self
+        GameState.displays["production"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["production_display"]
+        GameState.displays["production"] = None

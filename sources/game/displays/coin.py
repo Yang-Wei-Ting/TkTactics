@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
-from game.base import GameObject
 from game.displays.base import Display, DisplayModel, DisplayView
+from game.states import GameState
 
 
 class CoinDisplayModel(DisplayModel):
@@ -27,7 +27,7 @@ class CoinDisplayView(DisplayView):
 class CoinDisplay(Display):
 
     def _register(self) -> None:
-        GameObject.singletons["coin_display"] = self
+        GameState.displays["coin"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["coin_display"]
+        GameState.displays["coin"] = None

@@ -7,13 +7,14 @@ import tkinter as tk
 from random import choices
 
 from game.buildings import Barrack
+from game.configurations import Color, Dimension
 from game.controls import EndTurnControl
 from game.displays import CoinDisplay, DayDisplay, ProductionDisplay, StatDisplay
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Environment as E
-from game.miscellaneous import Image, Style, get_pixels
+from game.images import Image
 from game.soldiers import Hero
-from game.states import GameState
+from game.states import Environment, GameState
+from game.style import Style
+from game.utilities import get_pixels
 
 
 class Program:
@@ -27,8 +28,8 @@ class Program:
 
         self._canvas = tk.Canvas(
             self._window,
-            width=C.TILE_DIMENSION * C.HORIZONTAL_TILE_COUNT,
-            height=C.TILE_DIMENSION * C.VERTICAL_TILE_COUNT,
+            width=Dimension.TILE_DIMENSION * Dimension.HORIZONTAL_TILE_COUNT,
+            height=Dimension.TILE_DIMENSION * Dimension.VERTICAL_TILE_COUNT,
             background="Black",
             highlightthickness=0,
         )
@@ -40,41 +41,41 @@ class Program:
         self._create_side_panel()
         self._create_landscape()
         self._create_initial_buildings()
-        self._create_initial_allied_soldiers()
+        self._create_initial_blue_soldiers()
 
         self._window.mainloop()
 
     def _detect_environment(self) -> None:
-        E.SCREEN_HEIGHT = self._window.winfo_screenheight()
-        E.SCREEN_WIDTH = self._window.winfo_screenwidth()
-        E.TCL_TK_VERSION = self._window.call("info", "patchlevel")
-        E.WINDOWING_SYSTEM = self._window.call("tk", "windowingsystem")
+        Environment.screen_height = self._window.winfo_screenheight()
+        Environment.screen_width = self._window.winfo_screenwidth()
+        Environment.tcl_tk_version = self._window.call("info", "patchlevel")
+        Environment.windowing_system = self._window.call("tk", "windowingsystem")
 
     def _check_requirements(self) -> None:
         if sys.version_info < (3, 12):
             sys.exit("Python version >= 3.12 is required.")
 
-        if E.WINDOWING_SYSTEM == "aqua":
+        if Environment.windowing_system == "aqua":
             sys.exit("Aqua windowing system is currently not supported.")
 
     def _create_side_panel(self) -> None:
         self._canvas.create_image(
-            *get_pixels(C.HORIZONTAL_FIELD_TILE_COUNT + 1, C.VERTICAL_TILE_COUNT // 2),
+            *get_pixels(Dimension.HORIZONTAL_FIELD_TILE_COUNT + 1, Dimension.VERTICAL_TILE_COUNT // 2),
             image=Image.side_panel,
         )
         self._create_displays()
         self._create_controls()
 
     def _create_displays(self) -> None:
-        x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
+        x = Dimension.HORIZONTAL_FIELD_TILE_COUNT + 1
         DayDisplay.create({"x": x, "y": 0}, {"canvas": self._canvas})
         CoinDisplay.create({"x": x, "y": 1}, {"canvas": self._canvas})
         StatDisplay.create({"x": x, "y": 4.43}, {"canvas": self._canvas})
         ProductionDisplay.create({"x": x, "y": 9.43}, {"canvas": self._canvas})
 
     def _create_controls(self) -> None:
-        x = C.HORIZONTAL_FIELD_TILE_COUNT + 1
-        y = C.VERTICAL_TILE_COUNT - 1
+        x = Dimension.HORIZONTAL_FIELD_TILE_COUNT + 1
+        y = Dimension.VERTICAL_TILE_COUNT - 1
         EndTurnControl.create({"x": x, "y": y}, {"canvas": self._canvas})
 
     def _create_landscape(self) -> None:
@@ -87,8 +88,8 @@ class Program:
         )
         WEIGHTS = (56, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 15, 15)
 
-        for y in range(C.VERTICAL_TILE_COUNT):
-            for x in range(C.HORIZONTAL_FIELD_TILE_COUNT):
+        for y in range(Dimension.VERTICAL_TILE_COUNT):
+            for x in range(Dimension.HORIZONTAL_FIELD_TILE_COUNT):
                 [image] = choices(FIELDS, weights=WEIGHTS)
                 GameState.image_id_by_coordinate[(x, y)] = self._canvas.create_image(
                     *get_pixels(x, y),
@@ -101,8 +102,8 @@ class Program:
                     GameState.cost_by_coordinate[(x, y)] = 1
 
     def _create_initial_buildings(self) -> None:
-        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
-        y = C.VERTICAL_TILE_COUNT // 2
+        x = Dimension.HORIZONTAL_FIELD_TILE_COUNT // 2
+        y = Dimension.VERTICAL_TILE_COUNT // 2
 
         for dx, dy in {(0, 0), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)}:
             coordinate = (x + dx, y + dy)
@@ -115,10 +116,10 @@ class Program:
 
         Barrack.create({"x": x, "y": y}, {"canvas": self._canvas})
 
-    def _create_initial_allied_soldiers(self) -> None:
-        x = C.HORIZONTAL_FIELD_TILE_COUNT // 2
-        y = C.VERTICAL_TILE_COUNT // 2 + 1
-        Hero.create({"x": x, "y": y, "color": C.BLUE}, {"canvas": self._canvas})
+    def _create_initial_blue_soldiers(self) -> None:
+        x = Dimension.HORIZONTAL_FIELD_TILE_COUNT // 2
+        y = Dimension.VERTICAL_TILE_COUNT // 2 + 1
+        Hero.create({"x": x, "y": y, "color": Color.BLUE}, {"canvas": self._canvas})
 
 
 if __name__ == "__main__":

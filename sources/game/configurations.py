@@ -1,0 +1,22 @@
+class Color:
+
+    BLUE = "#043E6F"
+    GRAY = "#3B3B3B"
+    RED = "#801110"
+    COLOR_NAME_BY_HEX_TRIPLET = {
+        BLUE: "blue",
+        GRAY: "gray",
+        RED: "red",
+    }
+
+
+class Dimension:
+
+    # In pixels
+    TILE_DIMENSION = 60
+    HEALTH_BAR_LENGTH = 45
+
+    HORIZONTAL_FIELD_TILE_COUNT = 21
+    HORIZONTAL_PANEL_TILE_COUNT = 3
+    HORIZONTAL_TILE_COUNT = HORIZONTAL_FIELD_TILE_COUNT + HORIZONTAL_PANEL_TILE_COUNT
+    VERTICAL_TILE_COUNT = 13

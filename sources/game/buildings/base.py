@@ -3,9 +3,11 @@ from collections.abc import Callable
 from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Image, get_pixels
+from game.configurations import Dimension
+from game.images import Image
+from game.recruitments.base import SoldierRecruitment
 from game.states import GameState
+from game.utilities import get_pixels
 
 
 class BuildingModel(GameObjectModel):
@@ -37,7 +39,7 @@ class BuildingView(GameObjectView):
         )
         self._widgets["health_bar"] = ttk.Progressbar(
             self.canvas,
-            length=C.HEALTH_BAR_LENGTH,
+            length=Dimension.HEALTH_BAR_LENGTH,
             mode="determinate",
             orient=tk.HORIZONTAL,
             style="Green_Red.Horizontal.TProgressbar",
@@ -77,32 +79,29 @@ class Building(GameObject):
         return {"click": self.handle_click_event}
 
     def handle_click_event(self) -> None:
-        selected_game_objects = GameObject.ordered_collections["selected_game_object"]
-
-        match selected_game_objects:
+        match GameState.selected_game_objects:
             case []:
                 self._handle_selection()
-                selected_game_objects.append(self)
+                GameState.selected_game_objects.append(self)
             case [Building() as building]:
                 if building is self:
-                    selected_game_objects.pop()
+                    GameState.selected_game_objects.pop()
                     self._handle_deselection()
                 else:
                     building.handle_click_event()
                     self.handle_click_event()
-            case [*_, last_selected]:
-                last_selected.handle_click_event()
+            case [Building(), SoldierRecruitment() as recruitment]:
+                recruitment.handle_click_event()
                 self.handle_click_event()
             case [*rest]:
                 raise NotImplementedError(rest)
 
     def _handle_selection(self) -> None:
-        GameObject.singletons["pressed_game_object"] = self
-        if display := GameObject.singletons.get("stat_display"):
+        GameState.selected_unit = self
+        if display := GameState.displays["stat"]:
             display.refresh()
 
     def _handle_deselection(self) -> None:
-        if "pressed_game_object" in GameObject.singletons:
-            del GameObject.singletons["pressed_game_object"]
-        if display := GameObject.singletons.get("stat_display"):
+        GameState.selected_unit = None
+        if display := GameState.displays["stat"]:
             display.refresh()

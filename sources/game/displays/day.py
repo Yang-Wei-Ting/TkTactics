@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
-from game.base import GameObject
 from game.displays.base import Display, DisplayModel, DisplayView
+from game.states import GameState
 
 
 class DayDisplayModel(DisplayModel):
@@ -27,7 +27,7 @@ class DayDisplayView(DisplayView):
 class DayDisplay(Display):
 
     def _register(self) -> None:
-        GameObject.singletons["day_display"] = self
+        GameState.displays["day"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["day_display"]
+        GameState.displays["day"] = None

@@ -3,9 +3,9 @@ from collections.abc import Callable
 from tkinter import ttk
 
 from game.base import GameObject, GameObjectModel, GameObjectView
+from game.configurations import Color, Dimension
 from game.highlights import PlacementHighlight
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Image, ImproperlyConfigured
+from game.images import Image
 from game.soldiers.base import Soldier
 from game.states import GameState
 
@@ -21,13 +21,13 @@ class SoldierRecruitmentView(GameObjectView):
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
         if data["coin_reserve"] >= data["recruit_cost"]:
-            color = C.BLUE
+            color = Color.BLUE
             command = event_handlers["click"]
         else:
-            color = C.GRAY
+            color = Color.GRAY
             command = lambda: None
 
-        color_name = C.COLOR_NAME_BY_HEX_TRIPLET[color]
+        color_name = Color.COLOR_NAME_BY_HEX_TRIPLET[color]
         soldier_name = data["recruit_name"]
 
         self._widgets["main"].configure(
@@ -46,37 +46,31 @@ class SoldierRecruitment(GameObject):
         return getattr(module, type(self).__name__.removesuffix("Recruitment"))
 
     def refresh(self) -> None:
-        display = GameObject.singletons.get("coin_display")
-        if not display:
-            raise ImproperlyConfigured
-
         data = {
-            "coin_reserve": display.model.coin,
+            "coin_reserve": GameState.displays["coin"].model.coin,
             "recruit_name": self.target.__name__.lower(),
             "recruit_cost": self.target.get_model_class().cost,
         }
         self.view.refresh(data, self.event_handlers)
 
     def _register(self) -> None:
-        GameObject.unordered_collections["barrack_recruitment"].add(self)
+        GameState.recruitments["barrack"].add(self)
 
     def _unregister(self) -> None:
-        GameObject.unordered_collections["barrack_recruitment"].remove(self)
+        GameState.recruitments["barrack"].remove(self)
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
         return {"click": self.handle_click_event}
 
     def handle_click_event(self) -> None:
-        selected_game_objects = GameObject.ordered_collections["selected_game_object"]
-
-        match selected_game_objects:
+        match GameState.selected_game_objects:
             case [_]:
                 self._handle_selection()
-                selected_game_objects.append(self)
+                GameState.selected_game_objects.append(self)
             case [_, SoldierRecruitment() as recruitment]:
                 if recruitment is self:
-                    selected_game_objects.pop()
+                    GameState.selected_game_objects.pop()
                     self._handle_deselection()
                 else:
                     recruitment.handle_click_event()
@@ -85,22 +79,22 @@ class SoldierRecruitment(GameObject):
                 raise NotImplementedError(rest)
 
     def _handle_selection(self) -> None:
-        [building] = GameObject.ordered_collections["selected_game_object"]
+        [building] = GameState.selected_game_objects
         for dx, dy in {
             (1, 0), (1, 1), (0, 1), (-1, 1),
             (-1, 0), (-1, -1), (0, -1), (1, -1),
         }:
             x, y = building.model.x + dx, building.model.y + dy
             if (
-                0 < x < C.HORIZONTAL_FIELD_TILE_COUNT - 1
-                and 0 < y < C.VERTICAL_TILE_COUNT - 1
+                0 < x < Dimension.HORIZONTAL_FIELD_TILE_COUNT - 1
+                and 0 < y < Dimension.VERTICAL_TILE_COUNT - 1
                 and (x, y) not in (GameState.blue_unit_by_coordinate | GameState.red_unit_by_coordinate)
             ):
                 PlacementHighlight.create({"x": x, "y": y}, {"canvas": self.view.canvas})
 
-        if control := GameObject.singletons.get("display_outcome_control"):
+        if control := GameState.controls["display_outcome"]:
             control.view.lift_widgets()
 
     def _handle_deselection(self) -> None:
-        for highlight in set(GameObject.unordered_collections["placement_highlight"]):
+        for highlight in set(GameState.highlights["placement"]):
             highlight.destroy()

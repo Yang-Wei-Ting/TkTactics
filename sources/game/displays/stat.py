@@ -2,8 +2,8 @@ from collections.abc import Callable
 from textwrap import dedent
 from tkinter import ttk
 
-from game.base import GameObject
 from game.displays.base import Display, DisplayModel, DisplayView
+from game.states import GameState
 
 
 class StatDisplayModel(DisplayModel):
@@ -77,15 +77,15 @@ class StatDisplayView(DisplayView):
 class StatDisplay(Display):
 
     def refresh(self) -> None:
-        if obj := GameObject.singletons.get("pressed_game_object"):
-            data = obj.model.get_data()
+        if unit := GameState.selected_unit:
+            data = unit.model.get_data()
         else:
             data = {}
 
         self.view.refresh(data, self.event_handlers)
 
     def _register(self) -> None:
-        GameObject.singletons["stat_display"] = self
+        GameState.displays["stat"] = self
 
     def _unregister(self) -> None:
-        del GameObject.singletons["stat_display"]
+        GameState.displays["stat"] = None

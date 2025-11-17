@@ -1,11 +1,10 @@
 import sys
 import tkinter as tk
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from collections.abc import Callable
 from tkinter import ttk
 
-from game.miscellaneous import get_pixels
+from game.utilities import get_pixels
 
 
 class GameObjectModel:
@@ -78,10 +77,6 @@ class GameObjectView(ABC):
 
 
 class GameObject:
-
-    singletons: dict[str, "GameObject"] = {}
-    ordered_collections: defaultdict[str, list["GameObject"]] = defaultdict(list)
-    unordered_collections: defaultdict[str, set["GameObject"]] = defaultdict(set)
 
     @classmethod
     def create(cls, model_config: dict, view_config: dict) -> "GameObject":

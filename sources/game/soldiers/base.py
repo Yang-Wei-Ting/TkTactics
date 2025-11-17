@@ -1,15 +1,19 @@
 import heapq
 import tkinter as tk
 from collections.abc import Callable
+from enum import IntEnum, auto
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from game.base import GameObject, GameObjectModel, GameObjectView
-from game.buildings.base import Building, BuildingModel
+from game.configurations import Color, Dimension
 from game.highlights import AttackRangeHighlight, MovementHighlight
-from game.miscellaneous import Configuration as C
-from game.miscellaneous import Environment as E
-from game.miscellaneous import Image, get_pixels, msleep
-from game.states import GameState
+from game.images import Image
+from game.states import Environment, GameState
+from game.utilities import get_pixels, msleep
+
+if TYPE_CHECKING:
+    from game.buildings.base import Building, BuildingModel
 
 
 class SoldierModel(GameObjectModel):
@@ -34,12 +38,12 @@ class SoldierModel(GameObjectModel):
         self.moved_this_turn = False
         self.attacked_this_turn = False
 
-        if self.color == C.BLUE:
-            self._boundaries = (1, C.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, C.VERTICAL_TILE_COUNT - 2)
+        if self.color == Color.BLUE:
+            self._boundaries = (1, Dimension.HORIZONTAL_FIELD_TILE_COUNT - 2, 1, Dimension.VERTICAL_TILE_COUNT - 2)
             self._friendly_coordinates = GameState.blue_unit_by_coordinate
             self._hostile_coordinates = GameState.red_unit_by_coordinate
         else:
-            self._boundaries = (0, C.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, C.VERTICAL_TILE_COUNT - 1)
+            self._boundaries = (0, Dimension.HORIZONTAL_FIELD_TILE_COUNT - 1, 0, Dimension.VERTICAL_TILE_COUNT - 1)
             self._friendly_coordinates = GameState.red_unit_by_coordinate
             self._hostile_coordinates = GameState.blue_unit_by_coordinate
 
@@ -115,10 +119,10 @@ class SoldierModel(GameObjectModel):
 
         return attackables
 
-    def get_approaching_path(self, other: "SoldierModel | BuildingModel") -> tuple[tuple[int, int]]:
+    def get_approaching_path(self, hostile_unit: "SoldierModel | BuildingModel") -> tuple[tuple[int, int]]:
         """
-        Use the A* pathfinding algorithm to compute the cheapest path for self
-        to move toward other until other is within self's attack range.
+        Use the A* pathfinding algorithm to compute the cheapest path for self to
+        move toward hostile_unit until hostile_unit is within self's attack range.
         Trim the path so that it ends at the furthest coordinate self can reach
         this turn and return it.
         """
@@ -135,7 +139,7 @@ class SoldierModel(GameObjectModel):
         while frontier:
             _, current = heapq.heappop(frontier)
 
-            if other.get_distance_to(current) <= self.attack_range:
+            if hostile_unit.get_distance_to(current) <= self.attack_range:
                 c = current
 
                 goal_path = []
@@ -183,17 +187,17 @@ class SoldierModel(GameObjectModel):
                     if neighbor not in cost_table or new_cost < cost_table[neighbor]:
                         heapq.heappush(
                             frontier,
-                            (new_cost + other.get_distance_to(neighbor), neighbor),
+                            (new_cost + hostile_unit.get_distance_to(neighbor), neighbor),
                         )
                         cost_table[neighbor] = new_cost
                         parent_table[neighbor] = current
 
-        # TODO: When other is surrounded by obstacles, self should try to approach it.
+        # TODO: When hostile_unit is surrounded by obstacles, self should try to approach it.
         return tuple(optimal_path_this_turn)
 
-    def get_damage_output_against(self, other: "SoldierModel | BuildingModel") -> float:
-        multiplier = self.attack_multipliers.get(type(other).__name__, 1.0)
-        return min(self.attack * multiplier * (1.0 - other.defense), other.health)
+    def get_damage_output_against(self, hostile_unit: "SoldierModel | BuildingModel") -> float:
+        multiplier = self.attack_multipliers.get(type(hostile_unit).__name__, 1.0)
+        return min(self.attack * multiplier * (1.0 - hostile_unit.defense), hostile_unit.health)
 
     # SET
     def move_to(self, x: int, y: int) -> None:
@@ -204,11 +208,11 @@ class SoldierModel(GameObjectModel):
         self.y = y
         self.moved_this_turn = True
 
-    def assault(self, other: "SoldierModel | BuildingModel") -> None:
+    def assault(self, hostile_unit: "SoldierModel | BuildingModel") -> None:
         """
-        Make self attack other.
+        Make self attack hostile_unit.
         """
-        other.health -= self.get_damage_output_against(other)
+        hostile_unit.health -= self.get_damage_output_against(hostile_unit)
         self._learn()
         self.attacked_this_turn = True
 
@@ -238,7 +242,7 @@ class SoldierView(GameObjectView):
         self._widgets["level"] = ttk.Label(self.canvas)
         self._widgets["health_bar"] = ttk.Progressbar(
             self.canvas,
-            length=C.HEALTH_BAR_LENGTH,
+            length=Dimension.HEALTH_BAR_LENGTH,
             mode="determinate",
             orient=tk.HORIZONTAL,
             style="Green_Red.Horizontal.TProgressbar",
@@ -259,16 +263,16 @@ class SoldierView(GameObjectView):
         )
 
     def refresh(self, data: dict, event_handlers: dict[str, Callable]) -> None:
-        if data["color"] == C.BLUE and data["moved_this_turn"] and data["attacked_this_turn"]:
+        if data["color"] == Color.BLUE and data["moved_this_turn"] and data["attacked_this_turn"]:
             cursor = "arrow"
-            hex_triplet = C.GRAY
+            hex_triplet = Color.GRAY
             self._widgets["main"].unbind("<ButtonPress-1>")
         else:
             cursor = "hand2"
             hex_triplet = data["color"]
             self._widgets["main"].bind("<ButtonPress-1>", event_handlers["press"])
 
-        color_name = C.COLOR_NAME_BY_HEX_TRIPLET[hex_triplet]
+        color_name = Color.COLOR_NAME_BY_HEX_TRIPLET[hex_triplet]
         soldier_name = type(self).__name__.removesuffix("View").lower()
 
         self._widgets["main"].configure(
@@ -315,91 +319,93 @@ class SoldierView(GameObjectView):
 class Soldier(GameObject):
 
     def _register(self) -> None:
-        if self.model.color == C.BLUE:
-            self._friend_by_coordinate = GameState.blue_unit_by_coordinate
-            self._foe_by_coordinate = GameState.red_unit_by_coordinate
-            self._friends = GameObject.unordered_collections["allied_soldier"]
-            self._foes = GameObject.unordered_collections["enemy_soldier"]
+        if self.model.color == Color.BLUE:
+            self._friendly_unit_by_coordinate = GameState.blue_unit_by_coordinate
+            self._hostile_unit_by_coordinate = GameState.red_unit_by_coordinate
+            self._friendly_soldiers = GameState.soldiers["blue"]
+            self._hostile_soldiers = GameState.soldiers["red"]
         else:
-            self._friend_by_coordinate = GameState.red_unit_by_coordinate
-            self._foe_by_coordinate = GameState.blue_unit_by_coordinate
-            self._friends = GameObject.unordered_collections["enemy_soldier"]
-            self._foes = GameObject.unordered_collections["allied_soldier"]
+            self._friendly_unit_by_coordinate = GameState.red_unit_by_coordinate
+            self._hostile_unit_by_coordinate = GameState.blue_unit_by_coordinate
+            self._friendly_soldiers = GameState.soldiers["red"]
+            self._hostile_soldiers = GameState.soldiers["blue"]
 
-        self._friend_by_coordinate[(self.model.x, self.model.y)] = self
-        self._friends.add(self)
+        self._friendly_unit_by_coordinate[(self.model.x, self.model.y)] = self
+        self._friendly_soldiers.add(self)
 
     def _unregister(self) -> None:
-        del self._friend_by_coordinate[(self.model.x, self.model.y)]
-        self._friends.remove(self)
+        del self._friendly_unit_by_coordinate[(self.model.x, self.model.y)]
+        self._friendly_soldiers.remove(self)
 
     def move_to(self, x: int, y: int) -> None:
-        del self._friend_by_coordinate[(self.model.x, self.model.y)]
+        del self._friendly_unit_by_coordinate[(self.model.x, self.model.y)]
         self.model.move_to(x, y)
-        self._friend_by_coordinate[(self.model.x, self.model.y)] = self
+        self._friendly_unit_by_coordinate[(self.model.x, self.model.y)] = self
         self.refresh()
 
-    def assault(self, other: "Soldier | Building") -> None:
-        self.model.assault(other.model)
+    def assault(self, hostile_unit: "Soldier | Building") -> None:
+        self.model.assault(hostile_unit.model)
         self.refresh()
 
-        if other.model.health:
+        if hostile_unit.model.health:
             # Blink a unit's image when it is being attacked
-            other.view._widgets["main"].configure(image=Image.transparent_40x40)
-            if "level" in other.view._widgets:
-                other.view._widgets["level"].configure(image=Image.transparent_10x10)
+            hostile_unit.view._widgets["main"].configure(image=Image.transparent_40x40)
+            if "level" in hostile_unit.view._widgets:
+                hostile_unit.view._widgets["level"].configure(image=Image.transparent_10x10)
 
-            msleep(other.view.canvas.master, 100)
+            msleep(hostile_unit.view.canvas.master, 100)
 
-            other.refresh()
-            other_destroyed = False
+            hostile_unit.refresh()
+            hostile_unit_destroyed = False
         else:
-            other.destroy()
-            other_destroyed = True
+            hostile_unit.destroy()
+            hostile_unit_destroyed = True
 
-        if "pressed_game_object" in GameObject.singletons:
-            if GameObject.singletons["pressed_game_object"] is self:
+        if GameState.selected_unit:
+            if GameState.selected_unit is self:
                 self._refresh_stat_display()
-            elif GameObject.singletons["pressed_game_object"] is other:
-                if other_destroyed:
-                    del GameObject.singletons["pressed_game_object"]
+            elif GameState.selected_unit is hostile_unit:
+                if hostile_unit_destroyed:
+                    GameState.selected_unit = None
                 self._refresh_stat_display()
 
     def restore_health_by(self, amount: float) -> None:
         self.model.restore_health_by(amount)
         self.refresh()
 
-        if GameObject.singletons.get("pressed_game_object") is self:
+        if GameState.selected_unit is self:
             self._refresh_stat_display()
 
     def hunt(self) -> None:
         """
-        Identify the optimal rival unit then move toward and potentially attack it.
+        Identify the optimal hostile unit then move toward and potentially attack it.
         """
-        MOVE_THEN_KILL = 1
-        MOVE_THEN_HIT = 2
-        MOVE = 3
+
+        class Action(IntEnum):
+            MOVE_THEN_KILL = auto()
+            MOVE_THEN_HIT = auto()
+            MOVE = auto()
 
         priority_queue = []
 
-        for i, other in enumerate(self._foe_by_coordinate.values()):
-            path = self.model.get_approaching_path(other.model)
-            distance = other.model.get_distance_to(path[-1])
-            damage = self.model.get_damage_output_against(other.model)
+        for i, hostile_unit in enumerate(self._hostile_unit_by_coordinate.values()):
+            path = self.model.get_approaching_path(hostile_unit.model)
+            distance = hostile_unit.model.get_distance_to(path[-1])
+            damage = self.model.get_damage_output_against(hostile_unit.model)
 
             if distance > self.model.attack_range:
-                action = MOVE
-                order_by = [distance, -damage, other.model.health]
-            elif damage < other.model.health:
-                action = MOVE_THEN_HIT
-                order_by = [-damage, other.model.health, -distance]
+                action = Action.MOVE
+                order_by = [distance, -damage, hostile_unit.model.health]
+            elif damage < hostile_unit.model.health:
+                action = Action.MOVE_THEN_HIT
+                order_by = [-damage, hostile_unit.model.health, -distance]
             else:
-                action = MOVE_THEN_KILL
+                action = Action.MOVE_THEN_KILL
                 order_by = [-damage, -distance]
 
-            heapq.heappush(priority_queue, (action, *order_by, i, path, other))
+            heapq.heappush(priority_queue, (action, *order_by, i, path, hostile_unit))
 
-        action, *_, path, other = heapq.heappop(priority_queue)
+        action, *_, path, hostile_unit = heapq.heappop(priority_queue)
 
         self.move_to(*path[-1])
 
@@ -416,8 +422,8 @@ class Soldier(GameObject):
 
         msleep(self.view.canvas.master, 200)
 
-        if action in {MOVE_THEN_HIT, MOVE_THEN_KILL}:
-            self.assault(other)
+        if action in {Action.MOVE_THEN_HIT, Action.MOVE_THEN_KILL}:
+            self.assault(hostile_unit)
 
     @property
     def event_handlers(self) -> dict[str, Callable]:
@@ -438,18 +444,18 @@ class Soldier(GameObject):
         self._pressed_x = event.x
         self._pressed_y = event.y
 
-        for obj in GameObject.ordered_collections["selected_game_object"][::-1]:
+        for obj in GameState.selected_game_objects[::-1]:
             obj.handle_click_event()
 
-        GameObject.singletons["pressed_game_object"] = self
+        GameState.selected_unit = self
         self._refresh_stat_display()
 
         self._movement_target_by_id = {}
         self._attack_target_by_id = {}
 
-        if self.model.color == C.BLUE:
+        if self.model.color == Color.BLUE:
             # On X11, clean up highlights in case the mouse button was released outside the window.
-            if E.WINDOWING_SYSTEM == "x11":
+            if Environment.windowing_system == "x11":
                 self._destroy_highlights()
 
             prepare_drop = True
@@ -467,17 +473,17 @@ class Soldier(GameObject):
 
         self.view.lift_widgets()
 
-        if control := GameObject.singletons.get("display_outcome_control"):
+        if control := GameState.controls["display_outcome"]:
             control.view.lift_widgets()
 
     def _handle_drag_event(self, event: tk.Event) -> None:
-        if self.model.color == C.BLUE:
+        if self.model.color == Color.BLUE:
             self.view.move_by(event.x - self._pressed_x, event.y - self._pressed_y)
 
     def _handle_release_event(self, event: tk.Event) -> None:
         self.view.unbind_and_release(("<ButtonRelease-1>", "<Motion>"))
 
-        if self.model.color == C.BLUE:
+        if self.model.color == Color.BLUE:
             widget = self.view._widgets["main"]
             x = widget.winfo_x()
             y = widget.winfo_y()
@@ -490,8 +496,8 @@ class Soldier(GameObject):
                     self.move_to(highlight.model.x, highlight.model.y)
             elif target_ids := overlapping_ids & set(self._attack_target_by_id):
                 if len(target_ids) == 1:
-                    soldier = self._attack_target_by_id[target_ids.pop()]
-                    self.assault(soldier)
+                    hostile_unit = self._attack_target_by_id[target_ids.pop()]
+                    self.assault(hostile_unit)
 
             self.view.detach_widgets()
             self.view.attach_widgets(self.model.get_data())
@@ -499,7 +505,7 @@ class Soldier(GameObject):
         self._destroy_highlights()
 
     def _refresh_stat_display(self) -> None:
-        if display := GameObject.singletons.get("stat_display"):
+        if display := GameState.displays["stat"]:
             display.refresh()
 
     def _create_movement_highlights(self, prepare_drop: bool) -> None:
@@ -522,13 +528,13 @@ class Soldier(GameObject):
 
         if prepare_drop:
             coordinates = self.model.get_attackable_coordinates()
-            for soldier in self._foes:
+            for soldier in self._hostile_soldiers:
                 if (soldier.model.x, soldier.model.y) in coordinates:
                     self._attack_target_by_id[soldier.view._ids["main"]] = soldier
 
     def _destroy_highlights(self) -> None:
-        for highlight in set(GameObject.unordered_collections["movement_highlight"]):
+        for highlight in set(GameState.highlights["movement"]):
             highlight.destroy()
 
-        if highlight := GameObject.singletons.get("attack_range_highlight"):
+        if highlight := GameState.highlights["attack_range"]:
             highlight.destroy()
