@@ -399,10 +399,10 @@ class Soldier(GameObject):
                 order_by = [distance, -damage, hostile_unit.model.health]
             elif damage < hostile_unit.model.health:
                 action = Action.MOVE_THEN_HIT
-                order_by = [-damage, hostile_unit.model.health, -distance]
+                order_by = [-damage, hostile_unit.model.health, distance]
             else:
                 action = Action.MOVE_THEN_KILL
-                order_by = [-damage, -distance]
+                order_by = [-damage, distance]
 
             heapq.heappush(priority_queue, (action, *order_by, i, path, hostile_unit))
 
