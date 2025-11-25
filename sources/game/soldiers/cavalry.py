@@ -9,7 +9,7 @@ class CavalryModel(SoldierModel):
         "InfantryModel": 0.7,
     }
 
-    mobility = 3
+    mobility = 4
 
 
 class CavalryView(SoldierView):

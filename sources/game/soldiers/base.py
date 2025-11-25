@@ -27,7 +27,7 @@ class SoldierModel(GameObjectModel):
 
     mobility = 2
 
-    cost = 10
+    cost = 12
 
     def __init__(self, x: int, y: int, color: str, level: int = 1) -> None:
         super().__init__(x, y)
