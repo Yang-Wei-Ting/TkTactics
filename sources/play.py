@@ -1,5 +1,7 @@
 """
-© 2022-2025 Wei-Ting Yang. All rights reserved.
+Copyright (C) 2022-2026 Wei-Ting Yang <williamatcg@gmail.com>
+
+SPDX-License-Identifier: Apache-2.0
 """
 
 import sys
