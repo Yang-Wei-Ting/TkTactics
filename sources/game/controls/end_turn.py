@@ -12,33 +12,22 @@ from game.controls.display_outcome import DisplayOutcomeControl
 from game.recruitments.base import SoldierRecruitment
 from game.soldiers import Archer, Cavalry, Infantry
 from game.soldiers.base import Soldier
-from game.states import Environment, GameState
-from game.utilities import msleep
+from game.states import GameState
 
 
 def block_user_input_during(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         overlay = tk.Toplevel(self.view.canvas.master)
-        overlay.wm_geometry(f"{Environment.screen_width}x{Environment.screen_height}+0+0")
+        overlay.withdraw()
+        overlay.overrideredirect(True)
+        overlay.grab_set()
 
-        match Environment.windowing_system:
-            case "win32":
-                overlay.wm_attributes("-alpha", 0.01, "-disabled", 1, "-topmost", 1)
-                overlay.wm_overrideredirect(True)
-            case "x11":
-                overlay.wm_overrideredirect(True)
-                overlay.wait_visibility()
-                overlay.wm_attributes("-alpha", 0.01, "-topmost", 1)
-
-                # Wait until the overlay becomes transparent.
-                msleep(self.view.canvas.master, 20)
-
-        value = func(self, *args, **kwargs)
-
-        overlay.destroy()
-
-        return value
+        try:
+            return func(self, *args, **kwargs)
+        finally:
+            overlay.grab_release()
+            overlay.destroy()
 
     return wrapper
 
