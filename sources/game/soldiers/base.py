@@ -346,6 +346,7 @@ class Soldier(GameObject):
 
     def assault(self, hostile_unit: "Soldier | Building") -> None:
         self.model.assault(hostile_unit.model)
+
         self.refresh()
 
         if hostile_unit.model.health:
@@ -353,22 +354,22 @@ class Soldier(GameObject):
             hostile_unit.view._widgets["main"].configure(image=Image.transparent_40x40)
             if "level" in hostile_unit.view._widgets:
                 hostile_unit.view._widgets["level"].configure(image=Image.transparent_10x10)
-
             msleep(hostile_unit.view.canvas.master, 100)
-
             hostile_unit.refresh()
-            hostile_unit_destroyed = False
-        else:
-            hostile_unit.destroy()
-            hostile_unit_destroyed = True
 
-        if GameState.selected_unit:
-            if GameState.selected_unit is self:
+        if GameState.selected_unit is self:
+            self._refresh_stat_display()
+        elif GameState.selected_unit is hostile_unit:
+            if hostile_unit.model.health:
                 self._refresh_stat_display()
-            elif GameState.selected_unit is hostile_unit:
-                if hostile_unit_destroyed:
-                    GameState.selected_unit = None
+            elif not isinstance(hostile_unit, Soldier):
+                hostile_unit.handle_click_event()
+            else:
+                GameState.selected_unit = None
                 self._refresh_stat_display()
+
+        if hostile_unit.model.health == 0.0:
+            hostile_unit.destroy()
 
     def restore_health_by(self, amount: float) -> None:
         self.model.restore_health_by(amount)
